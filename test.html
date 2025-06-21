@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Puzzle</title>
+    <link rel="stylesheet" href="style.css?i=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+<div class="game-container">
+    <div class="header">
+        <h1>Poker Puzzle</h1>
+        <div class="score">score: <span id="score">0</span></div>
+        <div class="combo-display" id="combo-display"></div>
+    </div>
+
+    <div class="game-board" id="game-board"></div>
+
+    <div class="controls">
+        <button class="btn" onclick="alert('ok')">New Game</button>
+    </div>
+
+    <div class="combo-list">
+        <h3>Poker Combinations</h3>
+        <div class="combo-item"><span>Royal Flush</span><span>1000</span></div>
+        <div class="combo-item"><span>Straight Flush</span><span>500</span></div>
+        <div class="combo-item"><span>Four of a Kind</span><span>200</span></div>
+        <div class="combo-item"><span>Full House</span><span>100</span></div>
+        <div class="combo-item"><span>Flush</span><span>80</span></div>
+        <div class="combo-item"><span>Straight</span><span>60</span></div>
+        <div class="combo-item"><span>Three of a Kind</span><span>40</span></div>
+        <div class="combo-item"><span>Two Pair</span><span>20</span></div>
+        <div class="combo-item"><span>Pair</span><span>10</span></div>
+    </div>
+</div>
+</body>
+</html>
