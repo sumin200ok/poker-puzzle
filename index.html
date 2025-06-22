@@ -4,34 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poker Puzzle</title>
-    <link rel="stylesheet" href="style.css?i=2">
+    <link rel="stylesheet" href="style.css?i=3">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="game-container">
-    <div class="header">
-        <h1>Poker Puzzle</h1>
-        <div class="score">score: <span id="score">0</span></div>
-        <div class="combo-display" id="combo-display"></div>
-    </div>
-
     <div class="game-board" id="game-board"></div>
 
-    <div class="controls">
-        <button class="btn" onclick="newGame()">New Game</button>
+    <div class="sidebar">
+        <div class="logo">
+            Poker<br/>Puzzle
+        </div>
+        <div class="score-display">
+            <div class="score-value" id="score">0</div>
+        </div>
+        <button class="btn new-game-btn" onclick="showNewGamePopup()">Pass</button>
+        <button class="btn help-btn" onclick="showHelpPopup()">Help</button>
     </div>
+</div>
+<div class="copy">Poker Puzzle &copy; Alexey Sumin</div>
 
-    <div class="combo-list">
+<!-- Popup для New Game -->
+<div id="newGamePopup" class="popup-overlay">
+    <div class="popup">
+        <h3>Game Results</h3>
+        <div id="gameStats" class="game-stats"></div>
+        <div class="popup-buttons">
+            <button class="btn btn-primary" onclick="confirmNewGame()">New Game</button>
+            <button class="btn btn-secondary" onclick="hideNewGamePopup()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Popup для Help -->
+<div id="helpPopup" class="popup-overlay">
+    <div class="popup">
         <h3>Poker Combinations</h3>
-        <div class="combo-item"><span>Royal Flush</span><span>1000</span></div>
-        <div class="combo-item"><span>Straight Flush</span><span>500</span></div>
-        <div class="combo-item"><span>Four of a Kind</span><span>200</span></div>
-        <div class="combo-item"><span>Full House</span><span>100</span></div>
-        <div class="combo-item"><span>Flush</span><span>80</span></div>
-        <div class="combo-item"><span>Straight</span><span>60</span></div>
-        <div class="combo-item"><span>Three of a Kind</span><span>40</span></div>
-        <div class="combo-item"><span>Two Pair</span><span>30</span></div>
-        <div class="combo-item"><span>Pair</span><span>10</span></div>
+        <div class="combo-list">
+            <div class="combo-item">
+                <span>Royal Flush</span>
+                <span>10♠ J♠ Q♠ K♠ A♠</span>
+                <span>1000</span>
+            </div>
+            <div class="combo-item">
+                <span>Straight Flush</span>
+                <span><span class="red">8♥ 9♥ 10♥ J♥ Q♥</span></span>
+                <span>500</span>
+            </div>
+            <div class="combo-item">
+                <span>Four of a Kind</span>
+                <span><span class="red">Q♥ Q♦</span> Q♣ Q♠</span>
+                <span>200</span>
+            </div>
+            <div class="combo-item">
+                <span>Full House</span>
+                <span><span class="red">Q♥</span> Q♣ <span class="red">A♦</span> A♣ A♠</span>
+                <span>100</span>
+            </div>
+            <div class="combo-item">
+                <span>Flush</span>
+                <span class="red">3♥ J♥ A♥ 6♥ 9♥</span>
+                <span>80</span>
+            </div>
+            <div class="combo-item">
+                <span>Straight</span>
+                <span><span class="red">9♥ 10♥ J♦</span> Q♣ K♠</span>
+                <span>60</span>
+            </div>
+            <div class="combo-item">
+                <span>Three of a Kind</span>
+                <span><span class="red">Q♥</span> Q♣  Q♠</span>
+                <span>40</span>
+            </div>
+            <div class="combo-item">
+                <span>Two Pair</span>
+                <span><span class="red">3♥</span> 3♣ <span class="red">5♦</span> 5♣</span>
+                <span>30</span>
+            </div>
+            <div class="combo-item"><span>Pair</span><span><span class="red">7♥</span> 7♣</span><span>10</span></div>
+        </div>
+        <div class="popup-buttons">
+            <button class="btn btn-secondary" onclick="hideHelpPopup()">Close</button>
+        </div>
     </div>
 </div>
 

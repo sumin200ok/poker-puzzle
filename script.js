@@ -8,6 +8,7 @@ class PokerPuzzle {
         this.ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
         this.rows = 9;
         this.cols = 6;
+        this.comboStats = {}; // Добавляем статистику комбинаций
         this.init();
     }
 
@@ -15,6 +16,15 @@ class PokerPuzzle {
         this.createDeck();
         this.renderBoard();
         this.setupEventListeners();
+        this.initComboStats();
+    }
+
+    initComboStats() {
+        const combos = ['Royal Flush', 'Straight Flush', 'Four of a Kind', 'Full House',
+            'Flush', 'Straight', 'Three of a Kind', 'Two Pair', 'Pair'];
+        combos.forEach(combo => {
+            this.comboStats[combo] = 0;
+        });
     }
 
     createDeck() {
@@ -524,6 +534,8 @@ class PokerPuzzle {
         for (let combo of combos) {
             const winningIndices = combo.check(cards);
             if (winningIndices && winningIndices.length > 0) {
+                // Обновляем статистику
+                this.comboStats[combo.name]++;
                 return {
                     combo: combo,
                     winningCardIndices: winningIndices
@@ -679,11 +691,59 @@ class PokerPuzzle {
 
 let game;
 
+// Функции для управления popup'ами
+function showNewGamePopup() {
+    const popup = document.getElementById('newGamePopup');
+    const statsDiv = document.getElementById('gameStats');
+
+    // Формируем статистику
+    let statsHTML = `<div class="stat-item"><span>Current Score:</span><span>${game.score}</span></div>`;
+
+    const totalCombos = Object.values(game.comboStats).reduce((sum, count) => sum + count, 0);
+    statsHTML += `<div class="stat-item"><span>Total Combinations:</span><span>${totalCombos}</span></div><br>`;
+
+    // Показываем только комбинации, которые были собраны
+    for (let combo in game.comboStats) {
+        if (game.comboStats[combo] > 0) {
+            statsHTML += `<div class="stat-item"><span>${combo}:</span><span>${game.comboStats[combo]}</span></div>`;
+        }
+    }
+
+    statsDiv.innerHTML = statsHTML;
+    popup.classList.add('show');
+}
+
+function hideNewGamePopup() {
+    const popup = document.getElementById('newGamePopup');
+    popup.classList.remove('show');
+}
+
+function confirmNewGame() {
+    hideNewGamePopup();
+    newGame();
+}
+
+function showHelpPopup() {
+    const popup = document.getElementById('helpPopup');
+    popup.classList.add('show');
+}
+
+function hideHelpPopup() {
+    const popup = document.getElementById('helpPopup');
+    popup.classList.remove('show');
+}
+
 function newGame() {
     game = new PokerPuzzle();
     document.getElementById('score').textContent = '0';
-    document.getElementById('combo-display').textContent = '';
 }
+
+// Закрытие popup'ов по клику вне их области
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('popup-overlay')) {
+        e.target.classList.remove('show');
+    }
+});
 
 // Запуск игры
 window.addEventListener('load', newGame);
