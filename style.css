@@ -102,6 +102,25 @@ body {
     background: #ef5350;
 }
 
+.undo-btn {
+    width: 100%;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+    background: #ff9800;
+}
+
+.undo-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .help-btn {
     background: #2196f3;
 }
@@ -316,10 +335,19 @@ body {
     border-bottom: 1px solid #eee;
 }
 
+.combo-item > span:nth-child(1) {
+    width:110px;
+}
 
-.combo-item span:nth-child(2) {
+.combo-item > span:nth-child(2) {
     font-family: "RocknRoll One", sans-serif;
     font-size: 12px;
+    width:140px;
+}
+
+.combo-item > span:nth-child(3) {
+    width:40px;
+    text-align: right;
 }
 
 /* Анимированный баннер комбинации */

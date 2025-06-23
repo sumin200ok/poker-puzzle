@@ -10,6 +10,7 @@ class PokerPuzzle {
         this.cols = 6;
         this.comboStats = {}; // Добавляем статистику комбинаций
         this.highScore = this.loadHighScore(); // Загружаем рекорд
+        this.moveHistory = []; // История ходов для отмены
         this.init();
     }
 
@@ -19,6 +20,7 @@ class PokerPuzzle {
         this.setupEventListeners();
         this.initComboStats();
         this.updateHighScoreDisplay(); // Обновляем отображение рекорда
+        this.updateUndoButton(); // Инициализируем кнопку Undo
     }
 
     initComboStats() {
@@ -27,6 +29,76 @@ class PokerPuzzle {
         combos.forEach(combo => {
             this.comboStats[combo] = 0;
         });
+    }
+
+    saveGameState() {
+        const gameState = {
+            board: JSON.parse(JSON.stringify(this.board)),
+            score: this.score,
+            rows: this.rows,
+            cols: this.cols,
+            comboStats: JSON.parse(JSON.stringify(this.comboStats))
+        };
+        this.moveHistory.push(gameState);
+        
+
+        if (this.moveHistory.length > 1) {
+            this.moveHistory.shift();
+        }
+        
+        this.updateUndoButton();
+    }
+
+    updateUndoButton() {
+        const undoBtn = document.getElementById('undoBtn');
+        if (undoBtn) {
+            undoBtn.disabled = this.moveHistory.length === 0;
+        }
+    }
+
+    undoLastMove() {
+        if (this.moveHistory.length === 0) return;
+        
+        const lastState = this.moveHistory.pop();
+        
+        // Восстанавливаем состояние игры
+        this.board = lastState.board;
+        this.score = lastState.score;
+        this.rows = lastState.rows;
+        this.cols = lastState.cols;
+        this.comboStats = lastState.comboStats;
+        
+        // Очищаем выбранные карты
+        this.selectedCards = [];
+        this.isSelecting = false;
+        
+        // Обновляем отображение
+        this.renderBoard();
+        this.updateSelection();
+        document.getElementById('score').textContent = this.score;
+        this.updateUndoButton();
+        
+        // Показываем анимацию отмены
+        this.showUndoAnimation();
+    }
+
+    showUndoAnimation() {
+        const banner = document.createElement('div');
+        banner.className = 'combo-banner';
+        banner.textContent = 'Undo!';
+        banner.style.background = 'linear-gradient(45deg, #ff9800, #f57c00)';
+        
+        document.querySelector('.game-container').appendChild(banner);
+        
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            if (banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+        }, 1500);
     }
 
     createDeck() {
@@ -390,6 +462,9 @@ class PokerPuzzle {
         if (this.selectedCards.length >= 2) {
             const comboResult = this.checkPokerHand();
             if (comboResult) {
+                // Сохраняем состояние перед выполнением хода
+                this.saveGameState();
+                
                 this.showWinningCombo(comboResult.combo);
                 this.score += comboResult.combo.points;
 
@@ -773,6 +848,7 @@ function hideHelpPopup() {
 function newGame() {
     game = new PokerPuzzle();
     document.getElementById('score').textContent = '0';
+    // История ходов автоматически очищается в конструкторе
 }
 
 // Закрытие popup'ов по клику вне их области
