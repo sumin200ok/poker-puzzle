@@ -9,6 +9,7 @@ class PokerPuzzle {
         this.rows = 9;
         this.cols = 6;
         this.comboStats = {}; // Добавляем статистику комбинаций
+        this.highScore = this.loadHighScore(); // Загружаем рекорд
         this.init();
     }
 
@@ -17,6 +18,7 @@ class PokerPuzzle {
         this.renderBoard();
         this.setupEventListeners();
         this.initComboStats();
+        this.updateHighScoreDisplay(); // Обновляем отображение рекорда
     }
 
     initComboStats() {
@@ -687,6 +689,30 @@ class PokerPuzzle {
         }
         return false;
     }
+
+    // Загрузка рекорда из localStorage
+    loadHighScore() {
+        const saved = localStorage.getItem('pokerPuzzleHighScore');
+        return saved ? parseInt(saved) : 0;
+    }
+
+    // Сохранение рекорда в localStorage
+    saveHighScore(score) {
+        if (score > this.highScore) {
+            this.highScore = score;
+            localStorage.setItem('pokerPuzzleHighScore', score.toString());
+            return true; // Новый рекорд
+        }
+        return false; // Не новый рекорд
+    }
+
+    // Обновление отображения рекорда
+    updateHighScoreDisplay() {
+        const highScoreElement = document.getElementById('highScore');
+        if (highScoreElement) {
+            highScoreElement.textContent = this.highScore;
+        }
+    }
 }
 
 let game;
@@ -696,8 +722,19 @@ function showNewGamePopup() {
     const popup = document.getElementById('newGamePopup');
     const statsDiv = document.getElementById('gameStats');
 
+    // Сохраняем рекорд
+    const isNewRecord = game.saveHighScore(game.score);
+    game.updateHighScoreDisplay();
+
     // Формируем статистику
     let statsHTML = `<div class="stat-item"><span>Current Score:</span><span>${game.score}</span></div>`;
+    
+    // Показываем информацию о рекорде
+    if (isNewRecord) {
+        statsHTML += `<div class="stat-item new-record"><span>🏆 NEW RECORD!</span><span>${game.highScore}</span></div>`;
+    } else {
+        statsHTML += `<div class="stat-item"><span>High Score:</span><span>${game.highScore}</span></div>`;
+    }
 
     const totalCombos = Object.values(game.comboStats).reduce((sum, count) => sum + count, 0);
     statsHTML += `<div class="stat-item"><span>Total Combinations:</span><span>${totalCombos}</span></div><br>`;
