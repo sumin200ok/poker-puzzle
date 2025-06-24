@@ -35,7 +35,6 @@ body {
     grid-template-columns: repeat(var(--cols), minmax(35px, 50px));
     gap: 4px;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.2);
     padding: 10px;
     border-radius: 10px;
     position: relative;

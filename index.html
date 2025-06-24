@@ -1,10 +1,27 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poker Puzzle</title>
-    <link rel="stylesheet" href="style.css?i=3">
+    <meta name="description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills in this addictive puzzle game!">
+    <meta name="author" content="Alexey Sumin">
+    <meta property="og:title" content="Poker Puzzle - Challenge Your Poker Skills">
+    <meta property="og:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills in this addictive puzzle game!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://poker-puzzle.tiiny.site/">
+    <meta property="og:image" content="https://poker-puzzle.tiiny.site/logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Poker Puzzle">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:title" content="Poker Puzzle - Challenge Your Poker Skills">
+    <meta name="twitter:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills!">
+    <meta name="twitter:image" content="https://poker-puzzle.tiiny.site/logo.png">
+    <meta name="twitter:site" content="https://poker-puzzle.tiiny.site/">
+
+
+    <link rel="stylesheet" href="style.css?v=132">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,22 +30,18 @@
 <body>
 <div class="game-container">
     <div class="game-board" id="game-board"></div>
-
     <div class="sidebar">
-        <div class="logo">
-            Poker<br/>Puzzle
-        </div>
+        <div class="logo">Poker<br/>Puzzle</div>
         <div class="score-display">
             <div class="score-value" id="score">0</div>
         </div>
         <button class="btn new-game-btn" onclick="showNewGamePopup()">Pass</button>
         <button class="btn undo-btn" id="undoBtn" onclick="game.undoLastMove()" disabled>Undo</button>
-        <button class="btn help-btn" onclick="showHelpPopup()">Help</button>
+        <button class="btn help-btn" onclick="showHelpPopup()">Rules</button>
     </div>
 </div>
 <div class="copy">Poker Puzzle 1.3 &copy; Alexey Sumin</div>
 
-<!-- Popup для New Game -->
 <div id="newGamePopup" class="popup-overlay">
     <div class="popup">
         <h3>Game Results</h3>
@@ -40,7 +53,6 @@
     </div>
 </div>
 
-<!-- Popup для Help -->
 <div id="helpPopup" class="popup-overlay">
     <div class="popup">
         <h3>Poker Combinations</h3>
@@ -92,8 +104,6 @@
         </div>
     </div>
 </div>
-
-<script src="script.js"></script>
-
+<script src="script.js?v=132"></script>
 </body>
 </html>

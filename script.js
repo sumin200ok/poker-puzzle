@@ -808,7 +808,7 @@ function showNewGamePopup() {
     if (isNewRecord) {
         statsHTML += `<div class="stat-item new-record"><span>🏆 NEW RECORD!</span><span>${game.highScore}</span></div>`;
     } else {
-        statsHTML += `<div class="stat-item"><span>High Score:</span><span>${game.highScore}</span></div>`;
+        statsHTML += `<div class="stat-item"><span>Last Record:</span><span>${game.highScore}</span></div>`;
     }
 
     const totalCombos = Object.values(game.comboStats).reduce((sum, count) => sum + count, 0);
