@@ -58,7 +58,7 @@ body {
 .logo {
     font-size: 17px;
     font-weight: bold;
-    padding: 10px;
+    padding: 0;
     text-align: justify;
     color: lightyellow;
     font-family: "RocknRoll One", sans-serif;
@@ -122,6 +122,14 @@ body {
 
 .help-btn {
     background: #2196f3;
+}
+
+.achievements-btn {
+    background: beige;
+    width: 100%;
+    letter-spacing: 0;
+    font-size: 9px!important;
+    padding: 12px 0!important;
 }
 
 .card {
@@ -462,6 +470,93 @@ body {
     }
 }
 
+.achievements-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 15px 0;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    color: #666666;
+}
+
+.achievement-item.unlocked {
+    color: #00ff88;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.achievement-cards {
+    font-family: "RocknRoll One", sans-serif;
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.achievement-cards .red {
+    color: #d32f2f;
+}
+
+.achievement-cards .black {
+    color: #212121;
+}
+
+.achievement-desc {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.achievements-progress {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: normal;
+}
+
+.achievements-progress .star {
+    margin: 0 2px;
+}
+
+.achievement-status {
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+.achievement-item.unlocked .achievement-status {
+    color: #ffeb3b;
+}
+
+.achievement-unlocked {
+    background: linear-gradient(45deg, #ffc107, #ff9800) !important;
+    animation: achievementUnlocked 0.6s ease-out;
+}
+
+@keyframes achievementUnlocked {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 
 @media (max-width: 300px) {
     .card-rank-top, .card-rank-bottom {

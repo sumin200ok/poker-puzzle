@@ -10,18 +10,18 @@
     <meta property="og:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills in this addictive puzzle game!">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://poker-puzzle.tiiny.site/">
-    <meta property="og:image" content="https://poker-puzzle.tiiny.site/logo.png">
+    <meta property="og:image" content="https://poker-puzzle.tiiny.site/share_logo.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Poker Puzzle">
     <meta property="og:locale" content="en_US">
     <meta name="twitter:title" content="Poker Puzzle - Challenge Your Poker Skills">
     <meta name="twitter:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills!">
-    <meta name="twitter:image" content="https://poker-puzzle.tiiny.site/logo.png">
+    <meta name="twitter:image" content="https://poker-puzzle.tiiny.site/share_logo.png">
     <meta name="twitter:site" content="https://poker-puzzle.tiiny.site/">
 
 
-    <link rel="stylesheet" href="style.css?v=132">
+    <link rel="stylesheet" href="style.css?v=141">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,10 +31,9 @@
 <div class="game-container">
     <div class="game-board" id="game-board"></div>
     <div class="sidebar">
-        <div class="logo">Poker<br/>Puzzle</div>
-        <div class="score-display">
-            <div class="score-value" id="score">0</div>
-        </div>
+        <div class="logo"><img src="/logo.png" alt="Poker Puzzle"></div>
+        <div class="score-display"><div class="score-value" id="score">0</div></div>
+        <button class="btn achievements-btn" onclick="showAchievementsPopup()" id="achievementsBtn">☆☆☆☆☆</button>
         <button class="btn new-game-btn" onclick="showNewGamePopup()">Pass</button>
         <button class="btn undo-btn" id="undoBtn" onclick="game.undoLastMove()" disabled>Undo</button>
         <button class="btn help-btn" onclick="showHelpPopup()">Rules</button>
@@ -104,6 +103,52 @@
         </div>
     </div>
 </div>
-<script src="script.js?v=132"></script>
+
+<div id="achievementsPopup" class="popup-overlay">
+    <div class="popup">
+        <h3>Achievements <span id="achievementsProgress" class="achievements-progress"></span></h3>
+        <div id="achievementsList" class="achievements-list">
+            <div class="achievement-item" data-achievement="royal-flush">
+                <div class="achievement-info">
+                    <div class="achievement-name">Royal Flush Master</div>
+                    <div class="achievement-cards">10♠ J♠ Q♠ K♠ A♠</div>
+                    <div class="achievement-desc">Get one Royal Flush in a single game</div>
+                </div>
+            </div>
+            <div class="achievement-item" data-achievement="straight-flush">
+                <div class="achievement-info">
+                    <div class="achievement-name">Straight Flush Pro</div>
+                    <div class="achievement-cards"><span class="red">8♥ 9♥ 10♥ J♥ Q♥</span></div>
+                    <div class="achievement-desc">Get one Straight Flush in a single game</div>
+                </div>
+            </div>
+            <div class="achievement-item" data-achievement="four-of-a-kind">
+                <div class="achievement-info">
+                    <div class="achievement-name">Four of a Kind Expert</div>
+                    <div class="achievement-cards"><span class="red">Q♥ Q♦</span> Q♣ Q♠</div>
+                    <div class="achievement-desc">Get two Four of a Kind in a single game</div>
+                </div>
+            </div>
+            <div class="achievement-item" data-achievement="full-house">
+                <div class="achievement-info">
+                    <div class="achievement-name">Full House Builder</div>
+                    <div class="achievement-cards"><span class="red">Q♥</span> Q♣ <span class="red">A♦</span> A♣ A♠</div>
+                    <div class="achievement-desc">Get three Full House in a single game</div>
+                </div>
+            </div>
+            <div class="achievement-item" data-achievement="flush">
+                <div class="achievement-info">
+                    <div class="achievement-name">Flush Collector</div>
+                    <div class="achievement-cards"><span class="red">3♥ J♥ A♥ 6♥ 9♥</span></div>
+                    <div class="achievement-desc">Get three Flush in a single game</div>
+                </div>
+            </div>
+        </div>
+        <div class="popup-buttons">
+            <button class="btn btn-secondary" onclick="hideAchievementsPopup()">Close</button>
+        </div>
+    </div>
+</div>
+<script src="script.js?v=141"></script>
 </body>
 </html>

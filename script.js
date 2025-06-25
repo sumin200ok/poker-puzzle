@@ -11,6 +11,8 @@ class PokerPuzzle {
         this.comboStats = {}; // Добавляем статистику комбинаций
         this.highScore = this.loadHighScore(); // Загружаем рекорд
         this.moveHistory = []; // История ходов для отмены
+        this.achievements = this.loadAchievements(); // Загружаем достижения
+        this.currentGameAchievements = {}; // Достижения текущей игры
         this.init();
     }
 
@@ -21,6 +23,7 @@ class PokerPuzzle {
         this.initComboStats();
         this.updateHighScoreDisplay(); // Обновляем отображение рекорда
         this.updateUndoButton(); // Инициализируем кнопку Undo
+        this.updateAchievementsDisplay(); // Инициализируем отображение достижений
     }
 
     initComboStats() {
@@ -474,6 +477,10 @@ class PokerPuzzle {
                 this.showScoreAnimation(comboResult.combo.points);
                 this.createConfetti();
 
+                // Обновляем статистику
+                this.comboStats[comboResult.combo.name]++;
+                this.checkAchievements(comboResult.combo.name); // Проверяем достижения
+
                 // Удаляем только выигрышные карты после завершения анимации
                 setTimeout(async () => {
                     this.removeWinningCards(comboResult.winningCardIndices);
@@ -611,8 +618,6 @@ class PokerPuzzle {
         for (let combo of combos) {
             const winningIndices = combo.check(cards);
             if (winningIndices && winningIndices.length > 0) {
-                // Обновляем статистику
-                this.comboStats[combo.name]++;
                 return {
                     combo: combo,
                     winningCardIndices: winningIndices
@@ -788,6 +793,160 @@ class PokerPuzzle {
             highScoreElement.textContent = this.highScore;
         }
     }
+
+    // Загрузка достижений из localStorage
+    loadAchievements() {
+        const saved = localStorage.getItem('pokerPuzzleAchievements');
+        return saved ? JSON.parse(saved) : {
+            'royal-flush': false,
+            'straight-flush': false,
+            'four-of-a-kind': false,
+            'full-house': false,
+            'flush': false
+        };
+    }
+
+    // Сохранение достижений в localStorage
+    saveAchievements() {
+        localStorage.setItem('pokerPuzzleAchievements', JSON.stringify(this.achievements));
+    }
+
+    // Проверка и обновление достижений
+    checkAchievements(comboName) {
+        const achievementMap = {
+            'Royal Flush': 'royal-flush',
+            'Straight Flush': 'straight-flush',
+            'Four of a Kind': 'four-of-a-kind',
+            'Full House': 'full-house',
+            'Flush': 'flush'
+        };
+
+        const achievementKey = achievementMap[comboName];
+        if (!achievementKey) return;
+
+        // Обновляем счетчик для текущей игры
+        if (!this.currentGameAchievements[achievementKey]) {
+            this.currentGameAchievements[achievementKey] = 0;
+        }
+        this.currentGameAchievements[achievementKey]++;
+
+        // Проверяем условия достижений
+        this.checkAchievementConditions();
+    }
+
+    // Проверка условий достижений
+    checkAchievementConditions() {
+        const conditions = {
+            'royal-flush': () => this.currentGameAchievements['royal-flush'] >= 1,
+            'straight-flush': () => this.currentGameAchievements['straight-flush'] >= 1,
+            'four-of-a-kind': () => this.currentGameAchievements['four-of-a-kind'] >= 2,
+            'full-house': () => this.currentGameAchievements['full-house'] >= 3,
+            'flush': () => this.currentGameAchievements['flush'] >= 3
+        };
+
+        for (let achievement in conditions) {
+            if (!this.achievements[achievement] && conditions[achievement]()) {
+                this.unlockAchievement(achievement);
+            }
+        }
+    }
+
+    // Разблокировка достижения
+    unlockAchievement(achievementKey) {
+        this.achievements[achievementKey] = true;
+        this.saveAchievements();
+        this.showAchievementUnlocked(achievementKey);
+        this.updateAchievementsDisplay();
+        this.updateAchievementsProgress(); // Обновляем прогресс
+        this.updateAchievementsButton(); // Обновляем кнопку
+    }
+
+    // Показ уведомления о разблокировке достижения
+    showAchievementUnlocked(achievementKey) {
+        const achievementNames = {
+            'royal-flush': 'Royal Flush Master',
+            'straight-flush': 'Straight Flush Pro',
+            'four-of-a-kind': 'Four of a Kind Expert',
+            'full-house': 'Full House Builder',
+            'flush': 'Flush Collector'
+        };
+
+        const banner = document.createElement('div');
+        banner.className = 'combo-banner achievement-unlocked';
+        banner.innerHTML = `
+            <div>🏆 Achievement Unlocked!</div>
+            <div style="font-size: 16px; margin-top: 5px;">${achievementNames[achievementKey]}</div>
+        `;
+        banner.style.background = 'linear-gradient(45deg, #ffc107, #ff9800)';
+        
+        document.querySelector('.game-container').appendChild(banner);
+        
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            if (banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+        }, 3000);
+    }
+
+    // Обновление отображения достижений
+    updateAchievementsDisplay() {
+        const achievementItems = document.querySelectorAll('.achievement-item');
+        achievementItems.forEach(item => {
+            const achievementKey = item.dataset.achievement;
+            if (this.achievements[achievementKey]) {
+                item.classList.add('unlocked');
+            }
+        });
+        
+        // Обновляем прогресс в заголовке
+        this.updateAchievementsProgress();
+        // Обновляем звездочки на кнопке
+        this.updateAchievementsButton();
+    }
+
+    // Обновление прогресса достижений
+    updateAchievementsProgress() {
+        const progressElement = document.getElementById('achievementsProgress');
+        if (!progressElement) return;
+
+        const totalAchievements = 5;
+        const unlockedCount = Object.values(this.achievements).filter(unlocked => unlocked).length;
+        
+        let progressHTML = '';
+        for (let i = 0; i < totalAchievements; i++) {
+            if (i < unlockedCount) {
+                progressHTML += '<span class="star">⭐</span>'; // Золотая звезда
+            } else {
+                progressHTML += '<span class="star">☆</span>'; // Пустая звезда
+            }
+        }
+        
+        progressElement.innerHTML = progressHTML;
+    }
+
+    // Обновление звездочек на кнопке достижений
+    updateAchievementsButton() {
+        const buttonElement = document.getElementById('achievementsBtn');
+        if (!buttonElement) return;
+
+        const totalAchievements = 5;
+        const unlockedCount = Object.values(this.achievements).filter(unlocked => unlocked).length;
+        
+        let buttonHTML = '';
+        for (let i = 0; i < totalAchievements; i++) {
+            if (i < unlockedCount) {
+                buttonHTML += '★'; // Золотая звезда
+            } else {
+                buttonHTML += '☆'; // Пустая звезда
+            }
+        }
+        
+        buttonElement.innerHTML = buttonHTML;
+    }
 }
 
 let game;
@@ -845,10 +1004,24 @@ function hideHelpPopup() {
     popup.classList.remove('show');
 }
 
+function showAchievementsPopup() {
+    const popup = document.getElementById('achievementsPopup');
+    // Обновляем отображение достижений перед показом попапа
+    game.updateAchievementsDisplay();
+    game.updateAchievementsProgress(); // Обновляем прогресс
+    popup.classList.add('show');
+}
+
+function hideAchievementsPopup() {
+    const popup = document.getElementById('achievementsPopup');
+    popup.classList.remove('show');
+}
+
 function newGame() {
     game = new PokerPuzzle();
     document.getElementById('score').textContent = '0';
     // История ходов автоматически очищается в конструкторе
+    // Достижения текущей игры также сбрасываются в конструкторе
 }
 
 // Закрытие popup'ов по клику вне их области
@@ -860,3 +1033,37 @@ document.addEventListener('click', function(e) {
 
 // Запуск игры
 window.addEventListener('load', newGame);
+
+///////////////////////////
+
+function generateResultImage(score, playerName) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 600;
+    canvas.height = 400;
+
+    // Фон
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Текст с результатами
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 48px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Счет: ${score}`, canvas.width/2, 150);
+    ctx.fillText(`Игрок: ${playerName}`, canvas.width/2, 220);
+
+    return canvas.toDataURL('image/png');
+}
+
+function shareImage(score, playerName) {
+    const imageData = generateResultImage(score, playerName);
+
+    // Создаем ссылку для скачивания
+    const link = document.createElement('a');
+    link.download = 'game-result.png';
+    link.href = imageData;
+    link.click();
+    document.getElementsByName('body')[0].appendChild(link);
+}
