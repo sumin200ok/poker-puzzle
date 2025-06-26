@@ -865,16 +865,16 @@ class PokerPuzzle {
     showAchievementUnlocked(achievementKey) {
         const achievementNames = {
             'royal-flush': 'Royal Flush Master',
-            'straight-flush': 'Straight Flush Pro',
-            'four-of-a-kind': 'Four of a Kind Expert',
-            'full-house': 'Full House Builder',
-            'flush': 'Flush Collector'
+            'straight-flush': 'Straight Flush Master',
+            'four-of-a-kind': 'Double Quad',
+            'full-house': 'Full House Hat Trick',
+            'flush': 'Triple Flush'
         };
 
         const banner = document.createElement('div');
         banner.className = 'combo-banner achievement-unlocked';
         banner.innerHTML = `
-            <div>🏆 Achievement Unlocked!</div>
+            <div>🏆Achievement Unlocked!</div>
             <div style="font-size: 16px; margin-top: 5px;">${achievementNames[achievementKey]}</div>
         `;
         banner.style.background = 'linear-gradient(45deg, #ffc107, #ff9800)';
@@ -902,30 +902,8 @@ class PokerPuzzle {
             }
         });
         
-        // Обновляем прогресс в заголовке
-        this.updateAchievementsProgress();
         // Обновляем звездочки на кнопке
         this.updateAchievementsButton();
-    }
-
-    // Обновление прогресса достижений
-    updateAchievementsProgress() {
-        const progressElement = document.getElementById('achievementsProgress');
-        if (!progressElement) return;
-
-        const totalAchievements = 5;
-        const unlockedCount = Object.values(this.achievements).filter(unlocked => unlocked).length;
-        
-        let progressHTML = '';
-        for (let i = 0; i < totalAchievements; i++) {
-            if (i < unlockedCount) {
-                progressHTML += '<span class="star">⭐</span>'; // Золотая звезда
-            } else {
-                progressHTML += '<span class="star">☆</span>'; // Пустая звезда
-            }
-        }
-        
-        progressElement.innerHTML = progressHTML;
     }
 
     // Обновление звездочек на кнопке достижений
@@ -1008,7 +986,6 @@ function showAchievementsPopup() {
     const popup = document.getElementById('achievementsPopup');
     // Обновляем отображение достижений перед показом попапа
     game.updateAchievementsDisplay();
-    game.updateAchievementsProgress(); // Обновляем прогресс
     popup.classList.add('show');
 }
 
