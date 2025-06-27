@@ -21,7 +21,7 @@
     <meta name="twitter:site" content="https://poker-puzzle.tiiny.site/">
 
 
-    <link rel="stylesheet" href="style.css?v=141">
+    <link rel="stylesheet" href="style.css?v=143">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +41,7 @@
         <button class="btn help-btn" onclick="showHelpPopup()">Rules</button>
     </div>
 </div>
-<div class="copy">Poker Puzzle 1.4 &copy; Alexey Sumin</div>
+<div class="copy">Poker Puzzle 1.4 &copy;</div>
 
 <div id="newGamePopup" class="popup-overlay">
     <div class="popup">
@@ -109,6 +109,9 @@
 <div id="achievementsPopup" class="popup-overlay">
     <div class="popup">
         <h3>Achievements</h3>
+        <div id="achievementsLastRecord" class="high-score-info">
+            <span>My Last Record <span id="achievementsHighScore">0</span></span>
+        </div>
         <div id="achievementsList" class="achievements-list">
             <div class="achievement-item" data-achievement="royal-flush">
                 <div class="medal">🎖</div>
@@ -146,6 +149,6 @@
         </div>
     </div>
 </div>
-<script src="script.js?v=141"></script>
+<script src="script.js?v=143"></script>
 </body>
 </html>

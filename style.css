@@ -524,6 +524,28 @@ body {
     }
 }
 
+.achievements-progress {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: normal;
+}
+
+.high-score-info {
+    display: none;
+    text-align: center;
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(255, 235, 59, 0.3);
+    border-radius: 8px;
+    color: #555555;
+    font-weight: bold;
+}
+
+.high-score-info.active {
+    display: block;
+}
+
+
 @media (max-width: 300px) {
     .card-rank-top, .card-rank-bottom {
         font-size: 10px;

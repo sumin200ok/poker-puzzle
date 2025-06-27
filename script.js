@@ -12,7 +12,6 @@ class PokerPuzzle {
         this.highScore = this.loadHighScore(); // Загружаем рекорд
         this.moveHistory = []; // История ходов для отмены
         this.achievements = this.loadAchievements(); // Загружаем достижения
-        this.currentGameAchievements = {}; // Достижения текущей игры
         this.init();
     }
 
@@ -40,7 +39,8 @@ class PokerPuzzle {
             score: this.score,
             rows: this.rows,
             cols: this.cols,
-            comboStats: JSON.parse(JSON.stringify(this.comboStats))
+            comboStats: JSON.parse(JSON.stringify(this.comboStats)),
+            achievements: JSON.parse(JSON.stringify(this.achievements))
         };
         this.moveHistory.push(gameState);
         
@@ -70,6 +70,7 @@ class PokerPuzzle {
         this.rows = lastState.rows;
         this.cols = lastState.cols;
         this.comboStats = lastState.comboStats;
+        this.achievements = lastState.achievements;
         
         // Очищаем выбранные карты
         this.selectedCards = [];
@@ -80,6 +81,12 @@ class PokerPuzzle {
         this.updateSelection();
         document.getElementById('score').textContent = this.score;
         this.updateUndoButton();
+        
+        // Обновляем достижения после отката
+        this.updateAchievementsDisplay();
+        
+        // Сохраняем достижения в localStorage после отката
+        this.saveAchievements();
         
         // Показываем анимацию отмены
         this.showUndoAnimation();
@@ -544,7 +551,7 @@ class PokerPuzzle {
             if (banner.parentNode) {
                 banner.parentNode.removeChild(banner);
             }
-        }, 2000);
+        }, 4500);
     }
 
     showScoreAnimation(points) {
@@ -813,35 +820,18 @@ class PokerPuzzle {
 
     // Проверка и обновление достижений
     checkAchievements(comboName) {
-        const achievementMap = {
-            'Royal Flush': 'royal-flush',
-            'Straight Flush': 'straight-flush',
-            'Four of a Kind': 'four-of-a-kind',
-            'Full House': 'full-house',
-            'Flush': 'flush'
-        };
-
-        const achievementKey = achievementMap[comboName];
-        if (!achievementKey) return;
-
-        // Обновляем счетчик для текущей игры
-        if (!this.currentGameAchievements[achievementKey]) {
-            this.currentGameAchievements[achievementKey] = 0;
-        }
-        this.currentGameAchievements[achievementKey]++;
-
-        // Проверяем условия достижений
+        // Проверяем условия достижений на основе статистики комбинаций
         this.checkAchievementConditions();
     }
 
     // Проверка условий достижений
     checkAchievementConditions() {
         const conditions = {
-            'royal-flush': () => this.currentGameAchievements['royal-flush'] >= 1,
-            'straight-flush': () => this.currentGameAchievements['straight-flush'] >= 1,
-            'four-of-a-kind': () => this.currentGameAchievements['four-of-a-kind'] >= 2,
-            'full-house': () => this.currentGameAchievements['full-house'] >= 3,
-            'flush': () => this.currentGameAchievements['flush'] >= 3
+            'royal-flush': () => this.comboStats['Royal Flush'] >= 1,
+            'straight-flush': () => this.comboStats['Straight Flush'] >= 1,
+            'four-of-a-kind': () => this.comboStats['Four of a Kind'] >= 2,
+            'full-house': () => this.comboStats['Full House'] >= 3,
+            'flush': () => this.comboStats['Flush'] >= 3
         };
 
         for (let achievement in conditions) {
@@ -857,18 +847,17 @@ class PokerPuzzle {
         this.saveAchievements();
         this.showAchievementUnlocked(achievementKey);
         this.updateAchievementsDisplay();
-        this.updateAchievementsProgress(); // Обновляем прогресс
         this.updateAchievementsButton(); // Обновляем кнопку
     }
 
     // Показ уведомления о разблокировке достижения
     showAchievementUnlocked(achievementKey) {
         const achievementNames = {
-            'royal-flush': 'Royal Flush Master',
-            'straight-flush': 'Straight Flush Master',
-            'four-of-a-kind': 'Double Quad',
-            'full-house': 'Full House Hat Trick',
-            'flush': 'Triple Flush'
+            'royal-flush': 'Royal Flush',
+            'straight-flush': 'Straight Flush',
+            'four-of-a-kind': 'Quad 2 times',
+            'full-house': 'Full House 3 times',
+            'flush': 'Flush 3 times'
         };
 
         const banner = document.createElement('div');
@@ -889,7 +878,7 @@ class PokerPuzzle {
             if (banner.parentNode) {
                 banner.parentNode.removeChild(banner);
             }
-        }, 3000);
+        }, 4500);
     }
 
     // Обновление отображения достижений
@@ -897,6 +886,9 @@ class PokerPuzzle {
         const achievementItems = document.querySelectorAll('.achievement-item');
         achievementItems.forEach(item => {
             const achievementKey = item.dataset.achievement;
+            // Сначала убираем все классы unlocked
+            item.classList.remove('unlocked');
+            // Затем добавляем класс только для разблокированных достижений
             if (this.achievements[achievementKey]) {
                 item.classList.add('unlocked');
             }
@@ -904,6 +896,8 @@ class PokerPuzzle {
         
         // Обновляем звездочки на кнопке
         this.updateAchievementsButton();
+        // Обновляем рекорд в попапе
+        this.updateAchievementsHighScore();
     }
 
     // Обновление звездочек на кнопке достижений
@@ -925,6 +919,20 @@ class PokerPuzzle {
         
         buttonElement.innerHTML = buttonHTML;
     }
+
+    // Обновление рекорда в попапе достижений
+    updateAchievementsHighScore() {
+        const highScoreElement = document.getElementById('achievementsHighScore');
+        if (highScoreElement) {
+            highScoreElement.textContent = this.highScore;
+        }
+        const lastRecordElement = document.getElementById('achievementsLastRecord');
+        if (this.highScore > 0) {
+            lastRecordElement.classList.add('active')
+        } else {
+            lastRecordElement.classList.remove('active')
+        }
+    }
 }
 
 let game;
@@ -939,22 +947,22 @@ function showNewGamePopup() {
     game.updateHighScoreDisplay();
 
     // Формируем статистику
-    let statsHTML = `<div class="stat-item"><span>Current Score:</span><span>${game.score}</span></div>`;
+    let statsHTML = `<div class="stat-item"><span>Current Score</span><span>${game.score}</span></div>`;
     
     // Показываем информацию о рекорде
     if (isNewRecord) {
         statsHTML += `<div class="stat-item new-record"><span>🏆 NEW RECORD!</span><span>${game.highScore}</span></div>`;
     } else {
-        statsHTML += `<div class="stat-item"><span>Last Record:</span><span>${game.highScore}</span></div>`;
+        statsHTML += `<div class="stat-item"><span>Last Record</span><span>${game.highScore}</span></div>`;
     }
 
     const totalCombos = Object.values(game.comboStats).reduce((sum, count) => sum + count, 0);
-    statsHTML += `<div class="stat-item"><span>Total Combinations:</span><span>${totalCombos}</span></div><br>`;
+    statsHTML += `<div class="stat-item"><span>Total Combinations</span><span>${totalCombos}</span></div><br>`;
 
     // Показываем только комбинации, которые были собраны
     for (let combo in game.comboStats) {
         if (game.comboStats[combo] > 0) {
-            statsHTML += `<div class="stat-item"><span>${combo}:</span><span>${game.comboStats[combo]}</span></div>`;
+            statsHTML += `<div class="stat-item"><span>${combo}</span><span>${game.comboStats[combo]}</span></div>`;
         }
     }
 
