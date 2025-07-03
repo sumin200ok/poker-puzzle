@@ -43,7 +43,6 @@ class PokerPuzzle {
             achievements: JSON.parse(JSON.stringify(this.achievements))
         };
         this.moveHistory.push(gameState);
-        
 
         if (this.moveHistory.length > 1) {
             this.moveHistory.shift();
@@ -1018,37 +1017,3 @@ document.addEventListener('click', function(e) {
 
 // Запуск игры
 window.addEventListener('load', newGame);
-
-///////////////////////////
-
-function generateResultImage(score, playerName) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = 600;
-    canvas.height = 400;
-
-    // Фон
-    ctx.fillStyle = '#4CAF50';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Текст с результатами
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 48px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(`Счет: ${score}`, canvas.width/2, 150);
-    ctx.fillText(`Игрок: ${playerName}`, canvas.width/2, 220);
-
-    return canvas.toDataURL('image/png');
-}
-
-function shareImage(score, playerName) {
-    const imageData = generateResultImage(score, playerName);
-
-    // Создаем ссылку для скачивания
-    const link = document.createElement('a');
-    link.download = 'game-result.png';
-    link.href = imageData;
-    link.click();
-    document.getElementsByName('body')[0].appendChild(link);
-}

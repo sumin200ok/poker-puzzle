@@ -264,12 +264,20 @@ body {
 }
 
 .achievement-item .medal {
-    visibility: hidden;
+    width: 22px;
     font-size: 20px;
+    text-align: center;
 }
-.achievement-item.unlocked .medal {
-    visibility: visible;
+
+.achievement-item .medal:before {
+    content: "×";
+    color:#ef5350;
 }
+
+.achievement-item.unlocked .medal:before {
+    content: "🎖";
+}
+
 .stat-item.new-record {
     background: linear-gradient(45deg, #ffeb3b, #ff9800);
     color: #333;
@@ -318,18 +326,21 @@ body {
     background: #4caf50;
     color: white;
 }
-
-.btn-primary:hover {
-    background: #45a049;
-}
-
 .btn-secondary {
     background: #757575;
     color: white;
 }
 
-.btn-secondary:hover {
-    background: #616161;
+.btn-close {
+    position: absolute;
+    top:10px;
+    right: 10px;
+    background: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 32px;
+    color:#888888;
 }
 
 .combo-list {
@@ -476,52 +487,23 @@ body {
 .achievements-list {
     max-height: 400px;
     overflow-y: auto;
-    margin: 15px 0;
+    margin: 0 -15px 0 -15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
 }
 
 .achievement-item {
-    display: flex;
-    align-items: center;
-    padding:0;
-    margin: 0 0 20px 0;
-    color: #555555;
+    margin: 5px;
 }
-
-.achievement-info {
-    flex: 1;
+.achievement-item img {
+    height: 100px;
+    filter: saturate(0%);
 }
-
-.achievement-name {
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.achievement-status {
-    font-size: 20px;
-    margin-left: 10px;
-}
-
-.achievement-item.unlocked .achievement-status {
-    color: #ffeb3b;
-}
-
-.achievement-unlocked {
-    background: linear-gradient(45deg, #ffc107, #ff9800) !important;
-    animation: achievementUnlocked 0.6s ease-out;
-}
-
-@keyframes achievementUnlocked {
-    0% {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+.achievement-item.unlocked img {
+    filter:none;
 }
 
 .achievements-progress {
@@ -531,14 +513,17 @@ body {
 }
 
 .high-score-info {
-    display: none;
     text-align: center;
-    margin: 10px 0;
-    padding: 8px;
-    background: rgba(255, 235, 59, 0.3);
-    border-radius: 8px;
-    color: #555555;
+    margin: 5px;
+    padding: 11px 0 0 0;
+    background-image: url("achreq.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 88px;
+    height: 103px;
+    color: #f5c94c;
     font-weight: bold;
+    font-size: 21px;
 }
 
 .high-score-info.active {
