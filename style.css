@@ -38,6 +38,7 @@ body {
     padding: 10px;
     border-radius: 10px;
     position: relative;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .sidebar {
@@ -62,6 +63,9 @@ body {
     text-align: justify;
     color: lightyellow;
     font-family: "RocknRoll One", sans-serif;
+}
+.logo img {
+    width: 60px;
 }
 
 .score-display {
@@ -516,7 +520,7 @@ body {
     text-align: center;
     margin: 5px;
     padding: 11px 0 0 0;
-    background-image: url("achreq.png");
+    background-image: url("achiv/achreq.png");
     background-repeat: no-repeat;
     background-size: contain;
     width: 88px;
