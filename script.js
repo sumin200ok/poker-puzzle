@@ -16,13 +16,25 @@ class PokerPuzzle {
     }
 
     init() {
-        this.createDeck();
+        // Пытаемся загрузить сохраненное состояние
+        const loaded = this.loadGameFromLocalStorage();
+        
+        if (!loaded) {
+            // Если не удалось загрузить, создаем новую игру
+            this.createDeck();
+            this.initComboStats();
+        }
+        
         this.renderBoard();
         this.setupEventListeners();
-        this.initComboStats();
         this.updateHighScoreDisplay(); // Обновляем отображение рекорда
         this.updateUndoButton(); // Инициализируем кнопку Undo
         this.updateAchievementsDisplay(); // Инициализируем отображение достижений
+        
+        const scoreElement = document.getElementById('score');
+        if (scoreElement) {
+            scoreElement.textContent = this.score;
+        }
     }
 
     initComboStats() {
@@ -833,6 +845,33 @@ class PokerPuzzle {
         localStorage.setItem('pokerPuzzleAchievements', JSON.stringify(this.achievements));
     }
 
+
+
+    loadGameFromLocalStorage() {
+        const savedState = localStorage.getItem('pokerPuzzleGameState');
+        if (savedState) {
+            try {
+                const gameState = JSON.parse(savedState);
+                // Проверяем, что сохраненное состояние не слишком старое (например, не старше 24 часов)
+                const isExpired = Date.now() - gameState.timestamp > 24 * 60 * 60 * 1000;
+                
+                if (!isExpired && gameState.board && gameState.score !== undefined) {
+                    // Используем ту же структуру, что и в getState()
+                    this.board = gameState.board;
+                    this.score = gameState.score;
+                    this.rows = gameState.rows;
+                    this.cols = gameState.cols;
+                    this.comboStats = gameState.comboStats;
+                    this.achievements = gameState.achievements;
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading game state from localStorage:', error);
+            }
+        }
+        return false;
+    }
+
     // Проверка и обновление достижений
     checkAchievements(comboName) {
         // Проверяем условия достижений на основе статистики комбинаций
@@ -996,6 +1035,8 @@ function hideNewGamePopup() {
 
 function confirmNewGame() {
     hideNewGamePopup();
+    // Очищаем сохраненное состояние игры из localStorage
+    localStorage.removeItem('pokerPuzzleGameState');
     newGame();
 }
 
@@ -1023,7 +1064,6 @@ function hideAchievementsPopup() {
 
 function newGame() {
     game = new PokerPuzzle();
-    document.getElementById('score').textContent = '0';
     // История ходов автоматически очищается в конструкторе
     // Достижения текущей игры также сбрасываются в конструкторе
 }
@@ -1037,3 +1077,14 @@ document.addEventListener('click', function(e) {
 
 // Запуск игры
 window.addEventListener('load', newGame);
+
+// Слушатель события после выполнения хода для сохранения состояния
+document.addEventListener(AFTER_MOVE_EVENT, function(event) {
+    if (event.detail && event.detail.state) {
+        const gameState = {
+            ...event.detail.state,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('pokerPuzzleGameState', JSON.stringify(gameState));
+    }
+});
