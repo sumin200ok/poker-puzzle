@@ -33,8 +33,8 @@ class PokerPuzzle {
         });
     }
 
-    saveGameState() {
-        const gameState = {
+    getState() {
+        return {
             board: JSON.parse(JSON.stringify(this.board)),
             score: this.score,
             rows: this.rows,
@@ -42,6 +42,10 @@ class PokerPuzzle {
             comboStats: JSON.parse(JSON.stringify(this.comboStats)),
             achievements: JSON.parse(JSON.stringify(this.achievements))
         };
+    }
+
+    saveGameState() {
+        const gameState = this.getState();
         this.moveHistory.push(gameState);
 
         if (this.moveHistory.length > 1) {
@@ -89,6 +93,10 @@ class PokerPuzzle {
         
         // Показываем анимацию отмены
         this.showUndoAnimation();
+
+        // AFTER MOVE EVENT после Undo
+        const afterEvent = new CustomEvent(AFTER_MOVE_EVENT, { detail: { state: this.getState() } });
+        document.dispatchEvent(afterEvent);
     }
 
     showUndoAnimation() {
@@ -473,6 +481,10 @@ class PokerPuzzle {
             if (comboResult) {
                 // Сохраняем состояние перед выполнением хода
                 this.saveGameState();
+
+                // BEFORE MOVE EVENT
+                const beforeEvent = new CustomEvent(BEFORE_MOVE_EVENT, { detail: { state: this.getState() } });
+                document.dispatchEvent(beforeEvent);
                 
                 this.showWinningCombo(comboResult.combo);
                 this.score += comboResult.combo.points;
@@ -495,6 +507,10 @@ class PokerPuzzle {
 
                     // Применяем гравитацию и удаляем пустые строки/колонки
                     await this.animateGravity();
+
+                    // AFTER MOVE EVENT
+                    const afterEvent = new CustomEvent(AFTER_MOVE_EVENT, { detail: { state: this.getState() } });
+                    document.dispatchEvent(afterEvent);
 
                 }, 1200);
 
@@ -935,6 +951,10 @@ class PokerPuzzle {
 }
 
 let game;
+
+// Глобальные константы для названий событий
+const BEFORE_MOVE_EVENT = 'beforeMoveEvent';
+const AFTER_MOVE_EVENT = 'afterMoveEvent';
 
 // Функции для управления popup'ами
 function showNewGamePopup() {
