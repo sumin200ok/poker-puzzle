@@ -1,3 +1,204 @@
+class Combinations {
+    // Коды комбинаций для универсального использования
+    static ROYAL_FLUSH = 'ROYAL_FLUSH';
+    static STRAIGHT_FLUSH = 'STRAIGHT_FLUSH';
+    static FOUR_OF_A_KIND = 'FOUR_OF_A_KIND';
+    static FULL_HOUSE = 'FULL_HOUSE';
+    static FLUSH = 'FLUSH';
+    static STRAIGHT = 'STRAIGHT';
+    static THREE_OF_A_KIND = 'THREE_OF_A_KIND';
+    static TWO_PAIR = 'TWO_PAIR';
+    static PAIR = 'PAIR';
+
+    // Ассоциативный массив комбинаций
+    static combos = {
+        [Combinations.ROYAL_FLUSH]: { code: Combinations.ROYAL_FLUSH, name: 'Royal Flush', points: 1000, check: Combinations.isRoyalFlush.bind(Combinations) },
+        [Combinations.STRAIGHT_FLUSH]: { code: Combinations.STRAIGHT_FLUSH, name: 'Straight Flush', points: 500, check: Combinations.isStraightFlush.bind(Combinations) },
+        [Combinations.FOUR_OF_A_KIND]: { code: Combinations.FOUR_OF_A_KIND, name: 'Four of a Kind', points: 200, check: Combinations.isFourOfAKind.bind(Combinations) },
+        [Combinations.FULL_HOUSE]: { code: Combinations.FULL_HOUSE, name: 'Full House', points: 100, check: Combinations.isFullHouse.bind(Combinations) },
+        [Combinations.FLUSH]: { code: Combinations.FLUSH, name: 'Flush', points: 80, check: Combinations.isFlush.bind(Combinations) },
+        [Combinations.STRAIGHT]: { code: Combinations.STRAIGHT, name: 'Straight', points: 60, check: Combinations.isStraight.bind(Combinations) },
+        [Combinations.THREE_OF_A_KIND]: { code: Combinations.THREE_OF_A_KIND, name: 'Three of a Kind', points: 40, check: Combinations.isThreeOfAKind.bind(Combinations) },
+        [Combinations.TWO_PAIR]: { code: Combinations.TWO_PAIR, name: 'Two Pair', points: 30, check: Combinations.isTwoPair.bind(Combinations) },
+        [Combinations.PAIR]: { code: Combinations.PAIR, name: 'Pair', points: 10, check: Combinations.isPair.bind(Combinations) }
+    };
+
+    static getCombo(code) {
+        return this.combos[code] || null;
+    }
+
+    static checkPokerHand(cards) {
+        // Проверяем комбинации в порядке убывания очков
+        const comboOrder = [
+            this.ROYAL_FLUSH,
+            this.STRAIGHT_FLUSH,
+            this.FOUR_OF_A_KIND,
+            this.FULL_HOUSE,
+            this.FLUSH,
+            this.STRAIGHT,
+            this.THREE_OF_A_KIND,
+            this.TWO_PAIR,
+            this.PAIR
+        ];
+
+        for (let comboCode of comboOrder) {
+            const combo = this.combos[comboCode];
+            const winningIndices = combo.check(cards);
+            if (winningIndices && winningIndices.length > 0) {
+                return {
+                    combo: combo,
+                    winningCardIndices: winningIndices
+                };
+            }
+        }
+        return null;
+    }
+
+    static getRankValue(rank) {
+        if (rank === 'A') return 1;
+        if (rank === 'J') return 11;
+        if (rank === 'Q') return 12;
+        if (rank === 'K') return 13;
+        return parseInt(rank);
+    }
+
+    static getRankCounts(cards) {
+        const counts = {};
+        cards.forEach(cardData => {
+            const rank = cardData.card.rank;
+            if (!counts[rank]) counts[rank] = [];
+            counts[rank].push(cardData.index);
+        });
+        return counts;
+    }
+
+    static isRoyalFlush(cards) {
+        if (cards.length !== 5) return false;
+        const royalRanks = ['10', 'J', 'Q', 'K', 'A'];
+        const ranks = cards.map(c => c.card.rank);
+        const suits = [...new Set(cards.map(c => c.card.suit))];
+
+        if (suits.length === 1 &&
+            JSON.stringify(ranks.sort()) === JSON.stringify(royalRanks.sort())) {
+            return cards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isStraightFlush(cards) {
+        if (cards.length !== 5) return false;
+        const flushIndices = this.isFlush(cards);
+        const straightIndices = this.isStraight(cards);
+        if (flushIndices && straightIndices && flushIndices.length === 5 && straightIndices.length === 5) {
+            return cards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isFourOfAKind(cards) {
+        if (cards.length < 4) return false;
+        const counts = this.getRankCounts(cards);
+        for (let rank in counts) {
+            if (counts[rank].length >= 4) {
+                return counts[rank].slice(0, 4);
+            }
+        }
+        return false;
+    }
+
+    static isFullHouse(cards) {
+        if (cards.length !== 5) return false;
+        const counts = this.getRankCounts(cards);
+        const ranks = Object.keys(counts);
+        let threeIndices = null;
+        let pairIndices = null;
+
+        for (let rank of ranks) {
+            if (counts[rank].length === 3) {
+                threeIndices = counts[rank];
+            } else if (counts[rank].length === 2) {
+                pairIndices = counts[rank];
+            }
+        }
+
+        if (threeIndices && pairIndices) {
+            return [...threeIndices, ...pairIndices];
+        }
+        return false;
+    }
+
+    static isFlush(cards) {
+        if (cards.length < 5) return false;
+        const suits = [...new Set(cards.map(c => c.card.suit))];
+        if (suits.length === 1) {
+            return cards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isStraight(cards) {
+        if (cards.length < 5) return false;
+        const sortedCards = cards.sort((a, b) => this.getRankValue(a.card.rank) - this.getRankValue(b.card.rank));
+        const values = sortedCards.map(c => this.getRankValue(c.card.rank));
+
+        // Проверяем обычный стрит
+        let isStraight = true;
+        for (let i = 1; i < values.length; i++) {
+            if (values[i] !== values[i-1] + 1) {
+                // Проверяем стрит с тузом в конце (10, J, Q, K, A)
+                if (JSON.stringify(values) === JSON.stringify([1, 10, 11, 12, 13])) {
+                    return sortedCards.map(c => c.index);
+                }
+                isStraight = false;
+                break;
+            }
+        }
+
+        if (isStraight) {
+            return sortedCards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isThreeOfAKind(cards) {
+        if (cards.length < 3) return false;
+        const counts = this.getRankCounts(cards);
+        for (let rank in counts) {
+            if (counts[rank].length >= 3) {
+                return counts[rank].slice(0, 3);
+            }
+        }
+        return false;
+    }
+
+    static isTwoPair(cards) {
+        if (cards.length < 4) return false;
+        const counts = this.getRankCounts(cards);
+        const pairs = [];
+        for (let rank in counts) {
+            if (counts[rank].length >= 2) {
+                pairs.push(...counts[rank].slice(0, 2));
+            }
+        }
+        if (pairs.length >= 4) {
+            return pairs.slice(0, 4);
+        }
+        return false;
+    }
+
+    static isPair(cards) {
+        if (cards.length < 2) return false;
+        const counts = this.getRankCounts(cards);
+        for (let rank in counts) {
+            if (counts[rank].length >= 2) {
+                return counts[rank].slice(0, 2);
+            }
+        }
+        return false;
+    }
+
+}
+
 class PokerPuzzle {
     constructor() {
         this.board = [];
@@ -11,7 +212,6 @@ class PokerPuzzle {
         this.comboStats = {}; // Добавляем статистику комбинаций
         this.highScore = this.loadHighScore(); // Загружаем рекорд
         this.moveHistory = []; // История ходов для отмены
-        this.achievements = this.loadAchievements(); // Загружаем достижения
         this.init();
     }
 
@@ -29,7 +229,6 @@ class PokerPuzzle {
         this.setupEventListeners();
         this.updateHighScoreDisplay(); // Обновляем отображение рекорда
         this.updateUndoButton(); // Инициализируем кнопку Undo
-        this.updateAchievementsDisplay(); // Инициализируем отображение достижений
         
         const scoreElement = document.getElementById('score');
         if (scoreElement) {
@@ -51,8 +250,7 @@ class PokerPuzzle {
             score: this.score,
             rows: this.rows,
             cols: this.cols,
-            comboStats: JSON.parse(JSON.stringify(this.comboStats)),
-            achievements: JSON.parse(JSON.stringify(this.achievements))
+            comboStats: JSON.parse(JSON.stringify(this.comboStats))
         };
     }
 
@@ -85,7 +283,6 @@ class PokerPuzzle {
         this.rows = lastState.rows;
         this.cols = lastState.cols;
         this.comboStats = lastState.comboStats;
-        this.achievements = lastState.achievements;
         
         // Очищаем выбранные карты
         this.selectedCards = [];
@@ -97,11 +294,7 @@ class PokerPuzzle {
         document.getElementById('score').textContent = this.score;
         this.updateUndoButton();
         
-        // Обновляем достижения после отката
-        this.updateAchievementsDisplay();
-        
-        // Сохраняем достижения в localStorage после отката
-        this.saveAchievements();
+
         
         // Показываем анимацию отмены
         this.showUndoAnimation();
@@ -497,7 +690,7 @@ class PokerPuzzle {
                 // BEFORE MOVE EVENT
                 const beforeEvent = new CustomEvent(BEFORE_MOVE_EVENT, { detail: { state: this.getState() } });
                 document.dispatchEvent(beforeEvent);
-                
+
                 this.showWinningCombo(comboResult.combo);
                 this.score += comboResult.combo.points;
 
@@ -509,7 +702,6 @@ class PokerPuzzle {
 
                 // Обновляем статистику
                 this.comboStats[comboResult.combo.name]++;
-                this.checkAchievements(comboResult.combo.name); // Проверяем достижения
 
                 // Удаляем только выигрышные карты после завершения анимации
                 setTimeout(async () => {
@@ -637,171 +829,7 @@ class PokerPuzzle {
 
     checkPokerHand() {
         const cards = this.selectedCards.map(index => ({ card: this.board[index], index }));
-        const combos = [
-            { name: 'Royal Flush', points: 1000, check: this.isRoyalFlush.bind(this) },
-            { name: 'Straight Flush', points: 500, check: this.isStraightFlush.bind(this) },
-            { name: 'Four of a Kind', points: 200, check: this.isFourOfAKind.bind(this) },
-            { name: 'Full House', points: 100, check: this.isFullHouse.bind(this) },
-            { name: 'Flush', points: 80, check: this.isFlush.bind(this) },
-            { name: 'Straight', points: 60, check: this.isStraight.bind(this) },
-            { name: 'Three of a Kind', points: 40, check: this.isThreeOfAKind.bind(this) },
-            { name: 'Two Pair', points: 30, check: this.isTwoPair.bind(this) },
-            { name: 'Pair', points: 10, check: this.isPair.bind(this) }
-        ];
-
-        for (let combo of combos) {
-            const winningIndices = combo.check(cards);
-            if (winningIndices && winningIndices.length > 0) {
-                return {
-                    combo: combo,
-                    winningCardIndices: winningIndices
-                };
-            }
-        }
-        return null;
-    }
-
-    getRankValue(rank) {
-        if (rank === 'A') return 1;
-        if (rank === 'J') return 11;
-        if (rank === 'Q') return 12;
-        if (rank === 'K') return 13;
-        return parseInt(rank);
-    }
-
-    getRankCounts(cards) {
-        const counts = {};
-        cards.forEach(cardData => {
-            const rank = cardData.card.rank;
-            if (!counts[rank]) counts[rank] = [];
-            counts[rank].push(cardData.index);
-        });
-        return counts;
-    }
-
-    isRoyalFlush(cards) {
-        if (cards.length !== 5) return false;
-        const royalRanks = ['10', 'J', 'Q', 'K', 'A'];
-        const ranks = cards.map(c => c.card.rank);
-        const suits = [...new Set(cards.map(c => c.card.suit))];
-
-        if (suits.length === 1 &&
-            JSON.stringify(ranks.sort()) === JSON.stringify(royalRanks.sort())) {
-            return cards.map(c => c.index);
-        }
-        return false;
-    }
-
-    isStraightFlush(cards) {
-        if (cards.length !== 5) return false;
-        const flushIndices = this.isFlush(cards);
-        const straightIndices = this.isStraight(cards);
-        if (flushIndices && straightIndices && flushIndices.length === 5 && straightIndices.length === 5) {
-            return cards.map(c => c.index);
-        }
-        return false;
-    }
-
-    isFourOfAKind(cards) {
-        if (cards.length < 4) return false;
-        const counts = this.getRankCounts(cards);
-        for (let rank in counts) {
-            if (counts[rank].length >= 4) {
-                return counts[rank].slice(0, 4);
-            }
-        }
-        return false;
-    }
-
-    isFullHouse(cards) {
-        if (cards.length !== 5) return false;
-        const counts = this.getRankCounts(cards);
-        const ranks = Object.keys(counts);
-        let threeIndices = null;
-        let pairIndices = null;
-
-        for (let rank of ranks) {
-            if (counts[rank].length === 3) {
-                threeIndices = counts[rank];
-            } else if (counts[rank].length === 2) {
-                pairIndices = counts[rank];
-            }
-        }
-
-        if (threeIndices && pairIndices) {
-            return [...threeIndices, ...pairIndices];
-        }
-        return false;
-    }
-
-    isFlush(cards) {
-        if (cards.length < 5) return false;
-        const suits = [...new Set(cards.map(c => c.card.suit))];
-        if (suits.length === 1) {
-            return cards.map(c => c.index);
-        }
-        return false;
-    }
-
-    isStraight(cards) {
-        if (cards.length < 5) return false;
-        const sortedCards = cards.sort((a, b) => this.getRankValue(a.card.rank) - this.getRankValue(b.card.rank));
-        const values = sortedCards.map(c => this.getRankValue(c.card.rank));
-
-        // Проверяем обычный стрит
-        let isStraight = true;
-        for (let i = 1; i < values.length; i++) {
-            if (values[i] !== values[i-1] + 1) {
-                // Проверяем стрит с тузом в конце (10, J, Q, K, A)
-                if (JSON.stringify(values) === JSON.stringify([1, 10, 11, 12, 13])) {
-                    return sortedCards.map(c => c.index);
-                }
-                isStraight = false;
-                break;
-            }
-        }
-
-        if (isStraight) {
-            return sortedCards.map(c => c.index);
-        }
-        return false;
-    }
-
-    isThreeOfAKind(cards) {
-        if (cards.length < 3) return false;
-        const counts = this.getRankCounts(cards);
-        for (let rank in counts) {
-            if (counts[rank].length >= 3) {
-                return counts[rank].slice(0, 3);
-            }
-        }
-        return false;
-    }
-
-    isTwoPair(cards) {
-        if (cards.length < 4) return false;
-        const counts = this.getRankCounts(cards);
-        const pairs = [];
-        for (let rank in counts) {
-            if (counts[rank].length >= 2) {
-                pairs.push(...counts[rank].slice(0, 2));
-            }
-        }
-        if (pairs.length >= 4) {
-            return pairs.slice(0, 4);
-        }
-        return false;
-    }
-
-    isPair(cards) {
-        if (cards.length < 2) return false;
-        const counts = this.getRankCounts(cards);
-        for (let rank in counts) {
-            if (counts[rank].length >= 2) {
-                return counts[rank].slice(0, 2);
-            }
-        }
-        return false;
+        return Combinations.checkPokerHand(cards);
     }
 
     // Загрузка рекорда из localStorage
@@ -828,23 +856,6 @@ class PokerPuzzle {
         }
     }
 
-    // Загрузка достижений из localStorage
-    loadAchievements() {
-        const saved = localStorage.getItem('pokerPuzzleAchievements');
-        return saved ? JSON.parse(saved) : {
-            'royal-flush': false,
-            'straight-flush': false,
-            'four-of-a-kind': false,
-            'full-house': false,
-            'flush': false
-        };
-    }
-
-    // Сохранение достижений в localStorage
-    saveAchievements() {
-        localStorage.setItem('pokerPuzzleAchievements', JSON.stringify(this.achievements));
-    }
-
 
 
     loadGameFromLocalStorage() {
@@ -862,7 +873,7 @@ class PokerPuzzle {
                     this.rows = gameState.rows;
                     this.cols = gameState.cols;
                     this.comboStats = gameState.comboStats;
-                    this.achievements = gameState.achievements;
+    
                     return true;
                 }
             } catch (error) {
@@ -872,121 +883,7 @@ class PokerPuzzle {
         return false;
     }
 
-    // Проверка и обновление достижений
-    checkAchievements(comboName) {
-        // Проверяем условия достижений на основе статистики комбинаций
-        this.checkAchievementConditions();
-    }
 
-    // Проверка условий достижений
-    checkAchievementConditions() {
-        const conditions = {
-            'royal-flush': () => this.comboStats['Royal Flush'] >= 1,
-            'straight-flush': () => this.comboStats['Straight Flush'] >= 1,
-            'four-of-a-kind': () => this.comboStats['Four of a Kind'] >= 2,
-            'full-house': () => this.comboStats['Full House'] >= 3,
-            'flush': () => this.comboStats['Flush'] >= 3
-        };
-
-        for (let achievement in conditions) {
-            if (!this.achievements[achievement] && conditions[achievement]()) {
-                this.unlockAchievement(achievement);
-            }
-        }
-    }
-
-    // Разблокировка достижения
-    unlockAchievement(achievementKey) {
-        this.achievements[achievementKey] = true;
-        this.saveAchievements();
-        this.showAchievementUnlocked(achievementKey);
-        this.updateAchievementsDisplay();
-        this.updateAchievementsButton(); // Обновляем кнопку
-    }
-
-    // Показ уведомления о разблокировке достижения
-    showAchievementUnlocked(achievementKey) {
-        const achievementNames = {
-            'royal-flush': 'Royal Flush',
-            'straight-flush': 'Straight Flush',
-            'four-of-a-kind': 'Quad 2 times',
-            'full-house': 'Full House 3 times',
-            'flush': 'Flush 3 times'
-        };
-
-        const banner = document.createElement('div');
-        banner.className = 'combo-banner achievement-unlocked';
-        banner.innerHTML = `
-            <div>🏆Achievement Unlocked!</div>
-            <div style="font-size: 16px; margin-top: 5px;">${achievementNames[achievementKey]}</div>
-        `;
-        banner.style.background = 'linear-gradient(45deg, #ffc107, #ff9800)';
-        
-        document.querySelector('.game-container').appendChild(banner);
-        
-        setTimeout(() => {
-            banner.classList.add('show');
-        }, 10);
-        
-        setTimeout(() => {
-            if (banner.parentNode) {
-                banner.parentNode.removeChild(banner);
-            }
-        }, 4500);
-    }
-
-    // Обновление отображения достижений
-    updateAchievementsDisplay() {
-        const achievementItems = document.querySelectorAll('.achievement-item');
-        achievementItems.forEach(item => {
-            const achievementKey = item.dataset.achievement;
-            // Сначала убираем все классы unlocked
-            item.classList.remove('unlocked');
-            // Затем добавляем класс только для разблокированных достижений
-            if (this.achievements[achievementKey]) {
-                item.classList.add('unlocked');
-            }
-        });
-        
-        // Обновляем звездочки на кнопке
-        this.updateAchievementsButton();
-        // Обновляем рекорд в попапе
-        this.updateAchievementsHighScore();
-    }
-
-    // Обновление звездочек на кнопке достижений
-    updateAchievementsButton() {
-        const buttonElement = document.getElementById('achievementsBtn');
-        if (!buttonElement) return;
-
-        const totalAchievements = 5;
-        const unlockedCount = Object.values(this.achievements).filter(unlocked => unlocked).length;
-        
-        let buttonHTML = '';
-        for (let i = 0; i < totalAchievements; i++) {
-            if (i < unlockedCount) {
-                buttonHTML += '★'; // Золотая звезда
-            } else {
-                buttonHTML += '☆'; // Пустая звезда
-            }
-        }
-        
-        buttonElement.innerHTML = buttonHTML;
-    }
-
-    // Обновление рекорда в попапе достижений
-    updateAchievementsHighScore() {
-        const highScoreElement = document.getElementById('achievementsHighScore');
-        if (highScoreElement) {
-            highScoreElement.textContent = this.highScore;
-        }
-        const lastRecordElement = document.getElementById('achievementsLastRecord');
-        if (this.highScore > 0) {
-            lastRecordElement.classList.add('active')
-        } else {
-            lastRecordElement.classList.remove('active')
-        }
-    }
 }
 
 let game;
@@ -1052,8 +949,6 @@ function hideHelpPopup() {
 
 function showAchievementsPopup() {
     const popup = document.getElementById('achievementsPopup');
-    // Обновляем отображение достижений перед показом попапа
-    game.updateAchievementsDisplay();
     popup.classList.add('show');
 }
 
@@ -1087,4 +982,147 @@ document.addEventListener(AFTER_MOVE_EVENT, function(event) {
         };
         localStorage.setItem('pokerPuzzleGameState', JSON.stringify(gameState));
     }
+});
+
+class Achievements {
+    constructor() {
+        this.achievements = this.loadAchievements();
+        this.updateAchievementsDisplay();
+        this.setupEventListeners();
+    }
+
+    loadAchievements() {
+        const saved = localStorage.getItem('pokerPuzzleAchievements');
+        return saved !== null ? JSON.parse(saved) : {
+            'royal-flush': false,
+            'straight-flush': false,
+            'four-of-a-kind': false,
+            'full-house': false,
+            'flush': false
+        };
+    }
+
+    saveAchievements() {
+        localStorage.setItem('pokerPuzzleAchievements', JSON.stringify(this.achievements));
+    }
+
+    setupEventListeners() {
+        document.addEventListener(AFTER_MOVE_EVENT, (event) => {
+            if (event.detail && event.detail.state && event.detail.state.comboStats) {
+                this.checkAchievements(event.detail.state.comboStats);
+            }
+        });
+    }
+
+    checkAchievements(comboStats) {
+        const conditions = {
+            'royal-flush': () => comboStats['Royal Flush'] >= 1,
+            'straight-flush': () => comboStats['Straight Flush'] >= 1,
+            'four-of-a-kind': () => comboStats['Four of a Kind'] >= 2,
+            'full-house': () => comboStats['Full House'] >= 3,
+            'flush': () => comboStats['Flush'] >= 3
+        };
+
+        for (let achievement in conditions) {
+            if (!this.achievements[achievement] && conditions[achievement]()) {
+                this.updateAchievementsDisplay();
+                this.unlockAchievement(achievement);
+            }
+        }
+    }
+
+    unlockAchievement(achievementKey) {
+        this.achievements[achievementKey] = true;
+        this.saveAchievements();
+        this.showAchievementUnlocked(achievementKey);
+    }
+
+    showAchievementUnlocked(achievementKey) {
+        const achievementNames = {
+            'royal-flush': 'Royal Flush',
+            'straight-flush': 'Straight Flush',
+            'four-of-a-kind': 'Quad 2 times',
+            'full-house': 'Full House 3 times',
+            'flush': 'Flush 3 times'
+        };
+
+        const banner = document.createElement('div');
+        banner.className = 'combo-banner achievement-unlocked';
+        banner.innerHTML = `
+            <div>🏆Achievement Unlocked!</div>
+            <div style="font-size: 16px; margin-top: 5px;">${achievementNames[achievementKey]}</div>
+        `;
+        banner.style.background = 'linear-gradient(45deg, #ffc107, #ff9800)';
+        
+        document.querySelector('.game-container').appendChild(banner);
+        
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            if (banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+        }, 4500);
+    }
+
+    updateAchievementsDisplay() {
+        const achievementItems = document.querySelectorAll('.achievement-item');
+        achievementItems.forEach(item => {
+            const achievementKey = item.dataset.achievement;
+            // Сначала убираем все классы unlocked
+            item.classList.remove('unlocked');
+            // Затем добавляем класс только для разблокированных достижений
+            if (this.achievements[achievementKey]) {
+                item.classList.add('unlocked');
+            }
+        });
+        
+        // Обновляем звездочки на кнопке
+        this.updateAchievementsButton();
+        // Обновляем рекорд в попапе
+        this.updateAchievementsHighScore();
+    }
+
+    updateAchievementsButton() {
+        const buttonElement = document.getElementById('achievementsBtn');
+        if (!buttonElement) return;
+
+        const totalAchievements = 5;
+        const unlockedCount = Object.values(this.achievements).filter(unlocked => unlocked).length;
+        
+        let buttonHTML = '';
+        for (let i = 0; i < totalAchievements; i++) {
+            if (i < unlockedCount) {
+                buttonHTML += '★'; // Золотая звезда
+            } else {
+                buttonHTML += '☆'; // Пустая звезда
+            }
+        }
+        
+        buttonElement.innerHTML = buttonHTML;
+    }
+
+    updateAchievementsHighScore() {
+        const highScoreElement = document.getElementById('achievementsHighScore');
+        if (highScoreElement) {
+            highScoreElement.textContent = game.highScore;
+        }
+        const lastRecordElement = document.getElementById('achievementsLastRecord');
+        if (game.highScore > 0) {
+            lastRecordElement.classList.add('active')
+        } else {
+            lastRecordElement.classList.remove('active')
+        }
+    }
+}
+
+// Инициализация системы достижений
+let achievementsSystem;
+
+// Запуск игры
+window.addEventListener('load', () => {
+    newGame();
+    achievementsSystem = new Achievements();
 });
