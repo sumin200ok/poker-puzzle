@@ -549,3 +549,57 @@ body {
         padding: 15px 20px;
     }
 }
+
+.tutorial-highlight {
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.8), 0 0 40px rgba(255, 255, 0, 0.4);
+    border: 2px solid #FFD700 !important;
+    border-radius: 8px;
+    z-index: 9997;
+    position: relative;
+}
+
+.tutorial-navigation {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10000;
+    background: rgba(0,0,0,0.5);
+    padding: 15px;
+    border-radius: 10px;
+}
+.tutorial-navigation button {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.tutorial-navigation .btn-prev{
+    background: #666;
+}
+.tutorial-navigation .btn-next {
+    background: #4CAF50;
+}
+.tutorial-navigation .btn-skip {
+    background: #f44336;
+}
+
+.tutorial-tooltip {
+    position: absolute;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 0 20px #000000;
+    max-width: 80%;
+    z-index: 9999;
+    visibility: hidden;
+    font-size: 18px;
+    color: #555;
+    background: rgb(255, 255, 225);
+    border: 1px solid black;
+}
+
+

@@ -653,8 +653,6 @@ class PokerPuzzle {
         }
     }
 
-
-
     loadGameFromLocalStorage() {
         const savedState = localStorage.getItem('pokerPuzzleGameState');
         if (savedState) {
@@ -679,8 +677,6 @@ class PokerPuzzle {
         }
         return false;
     }
-
-
 }
 
 let game;
@@ -754,6 +750,13 @@ function hideAchievementsPopup() {
     popup.classList.remove('show');
 }
 
+function showTutorialFromHelp() {
+    hideHelpPopup();
+    if (tutorialSystem) {
+        tutorialSystem.showTutorial();
+    }
+}
+
 function newGame() {
     game = new PokerPuzzle();
     // История ходов автоматически очищается в конструкторе
@@ -781,9 +784,11 @@ document.addEventListener(AFTER_MOVE_EVENT, function(event) {
 
 // Инициализация системы достижений
 let achievementsSystem;
+let tutorialSystem;
 
 // Запуск игры
 window.addEventListener('load', () => {
     newGame();
     achievementsSystem = new Achievements();
+    tutorialSystem = new Tutorial();
 });
