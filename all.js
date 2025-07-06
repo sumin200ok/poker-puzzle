@@ -1,3 +1,598 @@
+class Tutorial {
+    static version = 1;
+    
+    static steps = [
+        {
+            version: 1,
+            description: 'Welcome to Poker Puzzle 👋 a challenging card game where you create poker combinations to score points. Test your poker skills in this addictive puzzle game!'
+        },
+        {
+            version: 1,
+            element: '#game-board',
+            description: 'Pick 2 to 5 cards to make a poker hand, but keep your finger on the screen and don\'t go backwards. Give it a try right now 👇'
+        },
+        {
+            version: 1,
+            element: '.help-btn',
+            description: 'Tap this button to see poker hand hints and bring up this tutorial again 👉'
+        },
+        {
+            version: 1,
+            element: '.undo-btn',
+            description: 'Tap this button to undo your last move if you make a mistake 👉'
+        },
+        {
+            version: 1,
+            element: '.new-game-btn',
+            description: 'Tap this button if you want to end the current game (no more poker hands available) or check your combination stats 👉'
+        },
+        {
+            version: 1,
+            element: '.score-display',
+            description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉'
+        },
+        {
+            version: 1,
+            description: 'Congratulations 🎉 Now you know the basics of the game. Good luck in Poker Puzzle!'
+        }
+    ];
+
+    constructor() {
+        this.currentStep = 0;
+        this.tooltip = null;
+        this.navigation = null;
+        this.currentTarget = null;
+        this.filteredSteps = [];
+        this.init();
+    }
+
+    init() {
+        // Получаем сохраненную версию туториала
+        const savedVersion = parseInt(localStorage.getItem('tutorialVersion')) || 0;
+
+        if (Tutorial.version <= savedVersion) {
+            return;
+        }
+
+        // Фильтруем шаги, показывая только те, которые новее сохраненной версии
+        this.filteredSteps = Tutorial.steps.filter(step => step.version > savedVersion);
+        
+        // Если нет новых шагов, не показываем туториал
+        if (this.filteredSteps.length === 0) {
+            return;
+        }
+
+        // Небольшая задержка для полной загрузки игры
+        setTimeout(() => {
+            this.createTooltip();
+            this.createNavigation();
+            this.showStep(0);
+        }, 500);
+    }
+
+    createTooltip() {
+        this.tooltip = document.createElement('div');
+        this.tooltip.className = 'tutorial-tooltip';
+        const boardRect = document.getElementById("game-board").getBoundingClientRect()
+        this.tooltip.style.width = (boardRect.width - 20) + "px";
+        document.body.appendChild(this.tooltip);
+    }
+
+    createNavigation() {
+        this.navigation = document.createElement('div');
+        this.navigation.className = 'tutorial-navigation';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = 'Prev';
+        prevBtn.className = 'btn-prev';
+        prevBtn.onclick = () => this.prevStep();
+
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = 'Next&nbsp;Hint';
+        nextBtn.className = 'btn-next';
+        nextBtn.onclick = () => this.nextStep();
+
+        this.navigation.appendChild(prevBtn);
+        this.navigation.appendChild(nextBtn);
+        document.body.appendChild(this.navigation);
+    }
+
+    showStep(stepIndex) {
+        if (stepIndex < 0 || stepIndex >= this.filteredSteps.length) {
+            this.endTutorial();
+            return;
+        }
+
+        this.currentStep = stepIndex;
+        const step = this.filteredSteps[stepIndex];
+
+        // Показываем навигацию
+        this.navigation.style.display = 'flex';
+
+        // Проверяем, есть ли целевой элемент
+        let targetElement = null;
+        if (step.element) {
+            targetElement = document.querySelector(step.element);
+            if (!targetElement) {
+                console.warn(`Tutorial step ${stepIndex}: Element ${step.element} not found`);
+                this.nextStep();
+                return;
+            }
+        }
+
+        // Показываем подсказку и подсвечиваем элемент (если есть)
+        this.showTooltip(targetElement, step.description);
+
+        // Обновляем кнопки навигации
+        this.updateNavigationButtons();
+    }
+
+    showTooltip(targetElement, description) {
+        this.tooltip.innerHTML = description;
+        this.tooltip.style.visibility = 'visible';
+
+        // Оцениваем размер tooltip'а (примерно)
+        const estimatedWidth = 300;
+        const estimatedHeight = 80;
+
+        // Очищаем предыдущую подсветку
+        this.clearHighlight();
+        this.positionTooltip(targetElement, this.tooltip);
+        if (targetElement) {
+            this.highlightTargetElement(targetElement);
+        }
+    }
+
+    positionTooltip(targetElement, tooltip) {
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const viewport = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+
+        if (!targetElement) {
+            tooltip.style.left = (viewport.width/2 - tooltipRect.width / 2)+"px";
+            tooltip.style.top = (viewport.height/2 - tooltipRect.height / 2)+"px";
+            return
+        }
+
+        const targetRect = targetElement.getBoundingClientRect();
+
+        const spacing = 8; // отступ от элемента
+
+        if (targetRect.width > tooltipRect.width && targetRect.height > tooltipRect.height) {
+            tooltip.style.top = (targetRect.top + spacing)+"px";
+            tooltip.style.left = (targetRect.left + targetRect.width / 2 - tooltipRect.width / 2)+"px";
+            return;
+        }
+
+        if (targetRect.left - tooltipRect.width - spacing > 0) {
+            tooltip.style.left = (targetRect.left - tooltipRect.width - spacing)+"px";
+            tooltip.style.top = (targetRect.top)+"px";
+            return
+        }
+
+        // fallback
+        tooltip.style.left = (viewport.width/2 - tooltipRect.width / 2)+"px";
+        tooltip.style.top = (viewport.height/2 - tooltipRect.height / 2)+"px";
+    }
+
+    highlightTargetElement(targetElement) {
+        // Сохраняем ссылку на целевой элемент
+        this.currentTarget = targetElement;
+        
+        // Если есть целевой элемент, подсвечиваем его
+        if (targetElement) {
+            // Добавляем класс подсветки
+            targetElement.classList.add('tutorial-highlight');
+        }
+    }
+
+    clearHighlight() {
+        // Удаляем подсветку с предыдущего элемента
+        if (this.currentTarget) {
+            this.currentTarget.classList.remove('tutorial-highlight');
+        }
+    }
+
+    updateNavigationButtons() {
+        const buttons = this.navigation.querySelectorAll('button');
+        const prevBtn = buttons[0];
+        const nextBtn = buttons[1];
+
+        prevBtn.disabled = this.currentStep === 0;
+        prevBtn.style.opacity = this.currentStep === 0 ? '0.5' : '1';
+
+        if (this.currentStep === this.filteredSteps.length - 1) {
+            nextBtn.innerHTML = 'Finish';
+        } else {
+            nextBtn.innerHTML = 'Next&nbsp;Hint';
+        }
+    }
+
+    prevStep() {
+        if (this.currentStep > 0) {
+            this.showStep(this.currentStep - 1);
+        }
+    }
+
+    nextStep() {
+        if (this.currentStep < this.filteredSteps.length - 1) {
+            this.showStep(this.currentStep + 1);
+        } else {
+            this.endTutorial();
+        }
+    }
+
+    endTutorial() {
+        // Сохраняем текущую версию туториала
+        localStorage.setItem('tutorialVersion', Tutorial.version.toString());
+        this.cleanup();
+    }
+
+    // Метод для принудительного показа учебника (например, из меню помощи)
+    showTutorial() {
+        // Очищаем предыдущие элементы, если они есть
+        this.cleanup();
+        
+        // Удаляем сохраненную версию, чтобы показать все шаги
+        localStorage.removeItem('tutorialVersion');
+        this.init();
+    }
+
+    cleanup() {
+        // Очищаем подсветку
+        this.clearHighlight();
+        
+        // Удаляем существующие элементы учебника
+        if (this.tooltip && this.tooltip.parentNode) {
+            this.tooltip.parentNode.removeChild(this.tooltip);
+        }
+        if (this.navigation && this.navigation.parentNode) {
+            this.navigation.parentNode.removeChild(this.navigation);
+        }
+        
+        this.tooltip = null;
+        this.navigation = null;
+        this.currentTarget = null;
+    }
+}
+
+class Combinations {
+    // Коды комбинаций для универсального использования
+    static ROYAL_FLUSH = 'ROYAL_FLUSH';
+    static STRAIGHT_FLUSH = 'STRAIGHT_FLUSH';
+    static FOUR_OF_A_KIND = 'FOUR_OF_A_KIND';
+    static FULL_HOUSE = 'FULL_HOUSE';
+    static FLUSH = 'FLUSH';
+    static STRAIGHT = 'STRAIGHT';
+    static THREE_OF_A_KIND = 'THREE_OF_A_KIND';
+    static TWO_PAIR = 'TWO_PAIR';
+    static PAIR = 'PAIR';
+
+    // Ассоциативный массив комбинаций
+    static combos = {
+        [Combinations.ROYAL_FLUSH]: { code: Combinations.ROYAL_FLUSH, name: 'Royal Flush', points: 1000, check: Combinations.isRoyalFlush.bind(Combinations) },
+        [Combinations.STRAIGHT_FLUSH]: { code: Combinations.STRAIGHT_FLUSH, name: 'Straight Flush', points: 500, check: Combinations.isStraightFlush.bind(Combinations) },
+        [Combinations.FOUR_OF_A_KIND]: { code: Combinations.FOUR_OF_A_KIND, name: 'Four of a Kind', points: 200, check: Combinations.isFourOfAKind.bind(Combinations) },
+        [Combinations.FULL_HOUSE]: { code: Combinations.FULL_HOUSE, name: 'Full House', points: 100, check: Combinations.isFullHouse.bind(Combinations) },
+        [Combinations.FLUSH]: { code: Combinations.FLUSH, name: 'Flush', points: 80, check: Combinations.isFlush.bind(Combinations) },
+        [Combinations.STRAIGHT]: { code: Combinations.STRAIGHT, name: 'Straight', points: 60, check: Combinations.isStraight.bind(Combinations) },
+        [Combinations.THREE_OF_A_KIND]: { code: Combinations.THREE_OF_A_KIND, name: 'Three of a Kind', points: 40, check: Combinations.isThreeOfAKind.bind(Combinations) },
+        [Combinations.TWO_PAIR]: { code: Combinations.TWO_PAIR, name: 'Two Pair', points: 30, check: Combinations.isTwoPair.bind(Combinations) },
+        [Combinations.PAIR]: { code: Combinations.PAIR, name: 'Pair', points: 10, check: Combinations.isPair.bind(Combinations) }
+    };
+
+    static getCombo(code) {
+        return this.combos[code] || null;
+    }
+
+    static checkPokerHand(cards) {
+        // Проверяем комбинации в порядке убывания очков
+        const comboOrder = [
+            this.ROYAL_FLUSH,
+            this.STRAIGHT_FLUSH,
+            this.FOUR_OF_A_KIND,
+            this.FULL_HOUSE,
+            this.FLUSH,
+            this.STRAIGHT,
+            this.THREE_OF_A_KIND,
+            this.TWO_PAIR,
+            this.PAIR
+        ];
+
+        for (let comboCode of comboOrder) {
+            const combo = this.combos[comboCode];
+            const winningIndices = combo.check(cards);
+            if (winningIndices && winningIndices.length > 0) {
+                return {
+                    combo: combo,
+                    winningCardIndices: winningIndices
+                };
+            }
+        }
+        return null;
+    }
+
+    static getRankValue(rank) {
+        if (rank === 'A') return 1;
+        if (rank === 'J') return 11;
+        if (rank === 'Q') return 12;
+        if (rank === 'K') return 13;
+        return parseInt(rank);
+    }
+
+    static getRankCounts(cards) {
+        const counts = {};
+        cards.forEach(cardData => {
+            const rank = cardData.card.rank;
+            if (!counts[rank]) counts[rank] = [];
+            counts[rank].push(cardData.index);
+        });
+        return counts;
+    }
+
+    static isRoyalFlush(cards) {
+        if (cards.length !== 5) return false;
+        const royalRanks = ['10', 'J', 'Q', 'K', 'A'];
+        const ranks = cards.map(c => c.card.rank);
+        const suits = [...new Set(cards.map(c => c.card.suit))];
+
+        if (suits.length === 1 &&
+            JSON.stringify(ranks.sort()) === JSON.stringify(royalRanks.sort())) {
+            return cards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isStraightFlush(cards) {
+        if (cards.length !== 5) return false;
+        const flushIndices = this.isFlush(cards);
+        const straightIndices = this.isStraight(cards);
+        if (flushIndices && straightIndices && flushIndices.length === 5 && straightIndices.length === 5) {
+            return cards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isFourOfAKind(cards) {
+        if (cards.length < 4) return false;
+        const counts = this.getRankCounts(cards);
+        for (let rank in counts) {
+            if (counts[rank].length >= 4) {
+                return counts[rank].slice(0, 4);
+            }
+        }
+        return false;
+    }
+
+    static isFullHouse(cards) {
+        if (cards.length !== 5) return false;
+        const counts = this.getRankCounts(cards);
+        const ranks = Object.keys(counts);
+        let threeIndices = null;
+        let pairIndices = null;
+
+        for (let rank of ranks) {
+            if (counts[rank].length === 3) {
+                threeIndices = counts[rank];
+            } else if (counts[rank].length === 2) {
+                pairIndices = counts[rank];
+            }
+        }
+
+        if (threeIndices && pairIndices) {
+            return [...threeIndices, ...pairIndices];
+        }
+        return false;
+    }
+
+    static isFlush(cards) {
+        if (cards.length < 5) return false;
+        const suits = [...new Set(cards.map(c => c.card.suit))];
+        if (suits.length === 1) {
+            return cards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isStraight(cards) {
+        if (cards.length < 5) return false;
+        const sortedCards = cards.sort((a, b) => this.getRankValue(a.card.rank) - this.getRankValue(b.card.rank));
+        const values = sortedCards.map(c => this.getRankValue(c.card.rank));
+
+        // Проверяем обычный стрит
+        let isStraight = true;
+        for (let i = 1; i < values.length; i++) {
+            if (values[i] !== values[i-1] + 1) {
+                // Проверяем стрит с тузом в конце (10, J, Q, K, A)
+                if (JSON.stringify(values) === JSON.stringify([1, 10, 11, 12, 13])) {
+                    return sortedCards.map(c => c.index);
+                }
+                isStraight = false;
+                break;
+            }
+        }
+
+        if (isStraight) {
+            return sortedCards.map(c => c.index);
+        }
+        return false;
+    }
+
+    static isThreeOfAKind(cards) {
+        if (cards.length < 3) return false;
+        const counts = this.getRankCounts(cards);
+        for (let rank in counts) {
+            if (counts[rank].length >= 3) {
+                return counts[rank].slice(0, 3);
+            }
+        }
+        return false;
+    }
+
+    static isTwoPair(cards) {
+        if (cards.length < 4) return false;
+        const counts = this.getRankCounts(cards);
+        const pairs = [];
+        for (let rank in counts) {
+            if (counts[rank].length >= 2) {
+                pairs.push(...counts[rank].slice(0, 2));
+            }
+        }
+        if (pairs.length >= 4) {
+            return pairs.slice(0, 4);
+        }
+        return false;
+    }
+
+    static isPair(cards) {
+        if (cards.length < 2) return false;
+        const counts = this.getRankCounts(cards);
+        for (let rank in counts) {
+            if (counts[rank].length >= 2) {
+                return counts[rank].slice(0, 2);
+            }
+        }
+        return false;
+    }
+}
+
+class Achievements {
+    constructor() {
+        this.achievements = this.loadAchievements();
+        this.updateAchievementsDisplay();
+        this.setupEventListeners();
+    }
+
+    loadAchievements() {
+        const saved = localStorage.getItem('pokerPuzzleAchievements');
+        return saved !== null ? JSON.parse(saved) : {
+            'royal-flush': false,
+            'straight-flush': false,
+            'four-of-a-kind': false,
+            'full-house': false,
+            'flush': false
+        };
+    }
+
+    saveAchievements() {
+        localStorage.setItem('pokerPuzzleAchievements', JSON.stringify(this.achievements));
+    }
+
+    setupEventListeners() {
+        document.addEventListener(AFTER_MOVE_EVENT, (event) => {
+            if (event.detail && event.detail.state && event.detail.state.comboStats) {
+                this.checkAchievements(event.detail.state.comboStats);
+            }
+        });
+    }
+
+    checkAchievements(comboStats) {
+        const conditions = {
+            'royal-flush': () => comboStats['Royal Flush'] >= 1,
+            'straight-flush': () => comboStats['Straight Flush'] >= 1,
+            'four-of-a-kind': () => comboStats['Four of a Kind'] >= 2,
+            'full-house': () => comboStats['Full House'] >= 3,
+            'flush': () => comboStats['Flush'] >= 3
+        };
+
+        for (let achievement in conditions) {
+            if (this.achievements[achievement] !== conditions[achievement]()) {
+                this.unlockAchievement(achievement, conditions[achievement]());
+                this.updateAchievementsDisplay();
+            }
+        }
+    }
+
+    unlockAchievement(achievementKey, unlocked) {
+        this.achievements[achievementKey] = unlocked;
+        this.saveAchievements();
+        if (unlocked) {
+            this.showAchievementUnlocked(achievementKey);
+        }
+    }
+
+    showAchievementUnlocked(achievementKey) {
+        const achievementNames = {
+            'royal-flush': 'Royal Flush',
+            'straight-flush': 'Straight Flush',
+            'four-of-a-kind': 'Quad 2 times',
+            'full-house': 'Full House 3 times',
+            'flush': 'Flush 3 times'
+        };
+
+        const banner = document.createElement('div');
+        banner.className = 'combo-banner achievement-unlocked';
+        banner.innerHTML = `
+            <div>🏆Achievement Unlocked!</div>
+            <div style="font-size: 16px; margin-top: 5px;">${achievementNames[achievementKey]}</div>
+        `;
+        banner.style.background = 'linear-gradient(45deg, #ffc107, #ff9800)';
+        
+        document.querySelector('.game-container').appendChild(banner);
+        
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            if (banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+        }, 4500);
+    }
+
+    updateAchievementsDisplay() {
+        const achievementItems = document.querySelectorAll('.achievement-item');
+        achievementItems.forEach(item => {
+            const achievementKey = item.dataset.achievement;
+            // Сначала убираем все классы unlocked
+            item.classList.remove('unlocked');
+            // Затем добавляем класс только для разблокированных достижений
+            if (this.achievements[achievementKey]) {
+                item.classList.add('unlocked');
+            }
+        });
+        // Обновляем звездочки на кнопке
+        this.updateAchievementsButton();
+        // Обновляем рекорд в попапе
+        this.updateAchievementsHighScore();
+    }
+
+    updateAchievementsButton() {
+        const buttonElement = document.getElementById('achievementsBtn');
+        if (!buttonElement) return;
+
+        const totalAchievements = 5;
+        const unlockedCount = Object.values(this.achievements).filter(unlocked => unlocked).length;
+        
+        let buttonHTML = '';
+        for (let i = 0; i < totalAchievements; i++) {
+            if (i < unlockedCount) {
+                buttonHTML += '★'; // Золотая звезда
+            } else {
+                buttonHTML += '☆'; // Пустая звезда
+            }
+        }
+        
+        buttonElement.innerHTML = buttonHTML;
+    }
+
+    updateAchievementsHighScore() {
+        const highScoreElement = document.getElementById('achievementsHighScore');
+        if (highScoreElement) {
+            highScoreElement.textContent = game.highScore;
+        }
+        const lastRecordElement = document.getElementById('achievementsLastRecord');
+        if (game.highScore > 0) {
+            lastRecordElement.classList.add('active')
+        } else {
+            lastRecordElement.classList.remove('active')
+        }
+    }
+}
+
 class PokerPuzzle {
     constructor() {
         this.board = [];
@@ -769,7 +1364,6 @@ document.addEventListener('click', function(e) {
         e.target.classList.remove('show');
     }
 });
-
 
 // Слушатель события после выполнения хода для сохранения состояния
 document.addEventListener(AFTER_MOVE_EVENT, function(event) {
