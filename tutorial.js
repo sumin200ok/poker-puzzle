@@ -1,29 +1,38 @@
 class Tutorial {
+    static version = 1;
+    
     static steps = [
         {
+            version: 1,
             description: 'Welcome to Poker Puzzle 👋 a challenging card game where you create poker combinations to score points. Test your poker skills in this addictive puzzle game!'
         },
         {
+            version: 1,
             element: '#game-board',
             description: 'Pick 2 to 5 cards to make a poker hand, but keep your finger on the screen and don\'t go backwards. Give it a try right now 👇'
         },
         {
+            version: 1,
             element: '.help-btn',
             description: 'Tap this button to see poker hand hints and bring up this tutorial again 👉'
         },
         {
+            version: 1,
             element: '.undo-btn',
             description: 'Tap this button to undo your last move if you make a mistake 👉'
         },
         {
+            version: 1,
             element: '.new-game-btn',
             description: 'Tap this button if you want to end the current game (no more poker hands available) or check your combination stats 👉'
         },
         {
+            version: 1,
             element: '.score-display',
             description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉'
         },
         {
+            version: 1,
             description: 'Congratulations 🎉 Now you know the basics of the game. Good luck in Poker Puzzle!'
         }
     ];
@@ -33,12 +42,23 @@ class Tutorial {
         this.tooltip = null;
         this.navigation = null;
         this.currentTarget = null;
+        this.filteredSteps = [];
         this.init();
     }
 
     init() {
-        // Проверяем, показывался ли уже учебник
-        if (localStorage.getItem('tutorialShown') === 'true') {
+        // Получаем сохраненную версию туториала
+        const savedVersion = parseInt(localStorage.getItem('tutorialVersion')) || 0;
+
+        if (Tutorial.version <= savedVersion) {
+            return;
+        }
+
+        // Фильтруем шаги, показывая только те, которые новее сохраненной версии
+        this.filteredSteps = Tutorial.steps.filter(step => step.version > savedVersion);
+        
+        // Если нет новых шагов, не показываем туториал
+        if (this.filteredSteps.length === 0) {
             return;
         }
 
@@ -78,13 +98,13 @@ class Tutorial {
     }
 
     showStep(stepIndex) {
-        if (stepIndex < 0 || stepIndex >= Tutorial.steps.length) {
+        if (stepIndex < 0 || stepIndex >= this.filteredSteps.length) {
             this.endTutorial();
             return;
         }
 
         this.currentStep = stepIndex;
-        const step = Tutorial.steps[stepIndex];
+        const step = this.filteredSteps[stepIndex];
 
         // Показываем навигацию
         this.navigation.style.display = 'flex';
@@ -183,7 +203,7 @@ class Tutorial {
         prevBtn.disabled = this.currentStep === 0;
         prevBtn.style.opacity = this.currentStep === 0 ? '0.5' : '1';
 
-        if (this.currentStep === Tutorial.steps.length - 1) {
+        if (this.currentStep === this.filteredSteps.length - 1) {
             nextBtn.innerHTML = 'Finish';
         } else {
             nextBtn.innerHTML = 'Next&nbsp;Hint';
@@ -197,7 +217,7 @@ class Tutorial {
     }
 
     nextStep() {
-        if (this.currentStep < Tutorial.steps.length - 1) {
+        if (this.currentStep < this.filteredSteps.length - 1) {
             this.showStep(this.currentStep + 1);
         } else {
             this.endTutorial();
@@ -205,7 +225,8 @@ class Tutorial {
     }
 
     endTutorial() {
-        localStorage.setItem('tutorialShown', 'true');
+        // Сохраняем текущую версию туториала
+        localStorage.setItem('tutorialVersion', Tutorial.version.toString());
         this.cleanup();
     }
 
@@ -214,7 +235,8 @@ class Tutorial {
         // Очищаем предыдущие элементы, если они есть
         this.cleanup();
         
-        localStorage.removeItem('tutorialShown');
+        // Удаляем сохраненную версию, чтобы показать все шаги
+        localStorage.removeItem('tutorialVersion');
         this.init();
     }
 
