@@ -13,18 +13,18 @@ class Tutorial {
         },
         {
             element: '.undo-btn',
-            description: 'Кнопка "Отменить" позволяет вернуться к предыдущему ходу, если вы ошиблись.'
-        },
-        {
-            element: '.score-display',
-            description: 'Здесь отображается ваш текущий счет. За каждую собранную комбинацию вы получаете очки.👉'
+            description: 'Tap this button to undo your last move if you make a mistake 👉'
         },
         {
             element: '.new-game-btn',
-            description: 'Нажмите "Новая игра" чтобы начать заново, когда захотите. ➡'
+            description: 'Tap this button if you want to end the current game (no more poker hands available) or check your combination stats 👉'
         },
         {
-            description: 'Отлично! Теперь вы знаете основы игры. Удачи в Poker Puzzle!'
+            element: '.score-display',
+            description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉'
+        },
+        {
+            description: 'Congratulations 🎉 Now you know the basics of the game. Good luck in Poker Puzzle!'
         }
     ];
 

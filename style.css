@@ -597,9 +597,8 @@ body {
     z-index: 9999;
     visibility: hidden;
     font-size: 18px;
-    color: #555;
-    background: rgb(255, 255, 225);
-    border: 1px solid black;
+    color: white;
+    background: #2196f3;
 }
 
 
