@@ -579,7 +579,7 @@ class Achievements {
         const superGame = document.getElementById('superGame');
         if (!superGame) return;
         if (unlockedCount >= totalAchievements) {
-            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="startNightmareMode()">Nightmare</button>';
+            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="startNightmareMode()">Nightmare</button><button class="btn rapid-btn" onclick="startRapidMode()">Rapid</button>';
         } else {
             superGame.innerHTML = 'Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong>';
         }
@@ -600,7 +600,7 @@ class Achievements {
 }
 
 class PokerPuzzle {
-    constructor() {
+    constructor(options = {}) {
         this.board = [];
         this.selectedCards = [];
         this.score = 0;
@@ -612,7 +612,10 @@ class PokerPuzzle {
         this.comboStats = {}; // Добавляем статистику комбинаций
         this.highScore = this.loadHighScore(); // Загружаем рекорд
         this.moveHistory = []; // История ходов для отмены
-        this.nightmareMode = false; // Режим Nightmare
+        this.nightmareMode = options.nightmareMode || false; // Режим Nightmare
+        this.rapidMode = options.rapidMode || false; // Режим Rapid
+        this.rapidTimer = null; // Таймер для режима Rapid
+        this.rapidTimeLeft = 60; // Время в секундах для режима Rapid
         this.init();
     }
 
@@ -633,7 +636,18 @@ class PokerPuzzle {
         
         const scoreElement = document.getElementById('score');
         if (scoreElement) {
-            scoreElement.textContent = this.score;
+            if (this.rapidMode) {
+                this.updateRapidTimerDisplay();
+            } else {
+                scoreElement.textContent = this.score;
+            }
+        }
+        
+        // Запускаем таймер если в режиме Rapid
+        if (this.rapidMode) {
+            console.log('Rapid mode detected in init, starting timer');
+            this.startRapidTimer();
+            console.log('Timer started, rapidTimer:', this.rapidTimer);
         }
     }
 
@@ -652,7 +666,8 @@ class PokerPuzzle {
             rows: this.rows,
             cols: this.cols,
             comboStats: JSON.parse(JSON.stringify(this.comboStats)),
-            nightmareMode: this.nightmareMode
+            nightmareMode: this.nightmareMode,
+            rapidMode: this.rapidMode
         };
     }
 
@@ -686,6 +701,7 @@ class PokerPuzzle {
         this.cols = lastState.cols;
         this.comboStats = lastState.comboStats;
         this.nightmareMode = lastState.nightmareMode || false;
+        this.rapidMode = lastState.rapidMode || false;
         
         // Очищаем выбранные карты
         this.selectedCards = [];
@@ -694,7 +710,16 @@ class PokerPuzzle {
         // Обновляем отображение
         this.renderBoard();
         this.updateSelection();
-        document.getElementById('score').textContent = this.score;
+        
+        const scoreElement = document.getElementById('score');
+        if (scoreElement) {
+            if (this.rapidMode) {
+                this.updateRapidTimerDisplay();
+            } else {
+                scoreElement.textContent = this.score;
+            }
+        }
+        
         this.updateUndoButton();
 
         // Показываем анимацию отмены
@@ -770,6 +795,7 @@ class PokerPuzzle {
         boardElement.style.setProperty('--cols', this.cols);
 
         this.viewNightmareMode();
+        this.viewRapidMode();
 
         this.board.forEach((card, index) => {
             const cardElement = document.createElement('div');
@@ -801,6 +827,66 @@ class PokerPuzzle {
         } else {
             boardElement.classList.remove('nightmare');
         }
+    }
+
+    viewRapidMode() {
+        const boardElement = document.getElementById('gameContainer');
+        // Добавляем индикатор режима Rapid
+        if (this.rapidMode) {
+            boardElement.classList.add('rapid');
+        } else {
+            boardElement.classList.remove('rapid');
+        }
+    }
+
+    startRapidTimer() {
+        if (!this.rapidMode) return;
+        
+        console.log('Starting Rapid timer');
+        this.rapidTimeLeft = 60;
+        this.updateRapidTimerDisplay();
+        
+        this.rapidTimer = setInterval(() => {
+            this.rapidTimeLeft--;
+            console.log('Rapid timer: ', this.rapidTimeLeft);
+            this.updateRapidTimerDisplay();
+            
+            if (this.rapidTimeLeft <= 0) {
+                this.endRapidMode();
+            }
+        }, 1000);
+    }
+
+    stopRapidTimer() {
+        if (this.rapidTimer) {
+            clearInterval(this.rapidTimer);
+            this.rapidTimer = null;
+        }
+    }
+
+    updateRapidTimerDisplay() {
+        const scoreElement = document.getElementById('score');
+        if (scoreElement) {
+            if (this.rapidMode) {
+                scoreElement.textContent = this.rapidTimeLeft;
+                console.log('Updated timer display: ', this.rapidTimeLeft);
+            }
+        }
+    }
+
+    endRapidMode() {
+        this.stopRapidTimer();
+        this.rapidMode = false;
+        this.viewRapidMode();
+        
+        // Показываем финальный счет
+        const scoreElement = document.getElementById('score');
+        if (scoreElement) {
+            scoreElement.textContent = this.score;
+        }
+        
+        // Показываем popup с результатами
+        showNewGamePopup();
     }
 
     findEmptyColumns() {
@@ -1197,16 +1283,20 @@ class PokerPuzzle {
                     if (this.nightmareMode) {
                         await this.animateShuffle();
                     }
-
-                    console.debug("save event: " + this.nightmareMode);
-
                     // AFTER MOVE EVENT
                     const afterEvent = new CustomEvent(AFTER_MOVE_EVENT, { detail: { state: this.getState() } });
                     document.dispatchEvent(afterEvent);
 
                 }, 1200);
 
-                document.getElementById('score').textContent = this.score;
+                const scoreElement = document.getElementById('score');
+                if (scoreElement) {
+                    if (this.rapidMode) {
+                        this.updateRapidTimerDisplay();
+                    } else {
+                        scoreElement.textContent = this.score;
+                    }
+                }
             } else {
                 this.selectedCards = [];
                 this.updateSelection();
@@ -1360,6 +1450,9 @@ class PokerPuzzle {
                     this.cols = gameState.cols;
                     this.comboStats = gameState.comboStats;
                     this.nightmareMode = gameState.nightmareMode || false;
+                    this.rapidMode = gameState.rapidMode || false;
+                    
+                    console.log('Loaded game state - nightmareMode:', this.nightmareMode, 'rapidMode:', this.rapidMode);
     
                     return true;
                 }
@@ -1450,7 +1543,11 @@ function showTutorialFromHelp() {
 }
 
 function newGame() {
-    game = new PokerPuzzle();
+    // Останавливаем таймер если он запущен
+    if (game && game.rapidTimer) {
+        game.stopRapidTimer();
+    }
+    game = new PokerPuzzle({});
     // История ходов автоматически очищается в конструкторе
     // Достижения текущей игры также сбрасываются в конструкторе
 }
@@ -1464,7 +1561,6 @@ document.addEventListener('click', function(e) {
 
 // Слушатель события после выполнения хода для сохранения состояния
 document.addEventListener(AFTER_MOVE_EVENT, function(event) {
-    console.debug('event ', event);
     if (event.detail && event.detail.state) {
         const gameState = {
             ...event.detail.state,
@@ -1480,12 +1576,26 @@ let tutorialSystem;
 
 
 function startNightmareMode() {
+    // Останавливаем таймер если он запущен
+    if (game && game.rapidTimer) {
+        game.stopRapidTimer();
+    }
     // Очищаем сохраненное состояние игры из localStorage
     localStorage.removeItem('pokerPuzzleGameState');
     // Создаем новую игру в режиме Nightmare
-    game = new PokerPuzzle();
-    game.nightmareMode = true;
+    game = new PokerPuzzle({ nightmareMode: true });
     game.viewNightmareMode();
+    hideAchievementsPopup();
+}
+
+function startRapidMode() {
+    console.log('Starting Rapid mode');
+    // Очищаем сохраненное состояние игры из localStorage
+    localStorage.removeItem('pokerPuzzleGameState');
+    // Создаем новую игру в режиме Rapid
+    game = new PokerPuzzle({ rapidMode: true });
+    console.log('Rapid mode set to: ', game.rapidMode);
+    game.viewRapidMode();
     hideAchievementsPopup();
 }
 
