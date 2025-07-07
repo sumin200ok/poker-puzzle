@@ -606,6 +606,7 @@ class PokerPuzzle {
         this.comboStats = {}; // Добавляем статистику комбинаций
         this.highScore = this.loadHighScore(); // Загружаем рекорд
         this.moveHistory = []; // История ходов для отмены
+        this.nightmareMode = false; // Режим Nightmare
         this.init();
     }
 
@@ -644,7 +645,8 @@ class PokerPuzzle {
             score: this.score,
             rows: this.rows,
             cols: this.cols,
-            comboStats: JSON.parse(JSON.stringify(this.comboStats))
+            comboStats: JSON.parse(JSON.stringify(this.comboStats)),
+            nightmareMode: this.nightmareMode
         };
     }
 
@@ -677,6 +679,7 @@ class PokerPuzzle {
         this.rows = lastState.rows;
         this.cols = lastState.cols;
         this.comboStats = lastState.comboStats;
+        this.nightmareMode = lastState.nightmareMode || false;
         
         // Очищаем выбранные карты
         this.selectedCards = [];
@@ -760,6 +763,8 @@ class PokerPuzzle {
 
         boardElement.style.setProperty('--cols', this.cols);
 
+        this.viewNightmareMode();
+
         this.board.forEach((card, index) => {
             const cardElement = document.createElement('div');
             cardElement.className = 'card';
@@ -780,6 +785,16 @@ class PokerPuzzle {
 
             boardElement.appendChild(cardElement);
         });
+    }
+
+    viewNightmareMode() {
+        const boardElement = document.getElementById('gameContainer');
+        // Добавляем индикатор режима Nightmare
+        if (this.nightmareMode) {
+            boardElement.classList.add('nightmare');
+        } else {
+            boardElement.classList.remove('nightmare');
+        }
     }
 
     findEmptyColumns() {
@@ -986,6 +1001,74 @@ class PokerPuzzle {
         await this.animateColumnRemoval();
     }
 
+    // Перемешивает оставшиеся карты на поле
+    shuffleRemainingCards() {
+        // Собираем все оставшиеся карты (не null)
+        const remainingCards = this.board.filter(card => card !== null);
+        
+        if (remainingCards.length <= 1) {
+            return; // Нечего перемешивать
+        }
+
+        // Перемешиваем карты
+        for (let i = remainingCards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [remainingCards[i], remainingCards[j]] = [remainingCards[j], remainingCards[i]];
+        }
+
+        // Создаем новые позиции для карт
+        const positions = [];
+        for (let i = 0; i < this.board.length; i++) {
+            if (this.board[i] !== null) {
+                positions.push(i);
+            }
+        }
+
+        // Перемешиваем позиции
+        for (let i = positions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [positions[i], positions[j]] = [positions[j], positions[i]];
+        }
+
+        // Размещаем карты в новых позициях
+        let cardIndex = 0;
+        for (let i = 0; i < this.board.length; i++) {
+            if (this.board[i] !== null) {
+                this.board[i] = remainingCards[cardIndex];
+                cardIndex++;
+            }
+        }
+    }
+
+    // Анимированное перемешивание карт
+    async animateShuffle() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.card');
+                cards.forEach((card, index) => {
+                    if (card.style.visibility !== 'hidden') {
+                        card.classList.add('shuffling');
+                    }
+                });
+            }, 200);
+
+            // Перемешиваем карты
+            setTimeout(() => {
+                this.shuffleRemainingCards();
+                this.renderBoard();
+                
+                setTimeout(() => {
+                    const cards = document.querySelectorAll('.card');
+                    cards.forEach(card => {
+                        card.classList.remove('shuffling');
+                    });
+                }, 500);
+
+                resolve();
+            }, 700);
+        });
+    }
+
     setupEventListeners() {
         const board = document.getElementById('game-board');
 
@@ -1103,6 +1186,13 @@ class PokerPuzzle {
 
                     // Применяем гравитацию и удаляем пустые строки/колонки
                     await this.animateGravity();
+
+                    // Перемешиваем оставшиеся карты только в режиме Nightmare
+                    if (this.nightmareMode) {
+                        await this.animateShuffle();
+                    }
+
+                    console.debug("save event: " + this.nightmareMode);
 
                     // AFTER MOVE EVENT
                     const afterEvent = new CustomEvent(AFTER_MOVE_EVENT, { detail: { state: this.getState() } });
@@ -1263,6 +1353,7 @@ class PokerPuzzle {
                     this.rows = gameState.rows;
                     this.cols = gameState.cols;
                     this.comboStats = gameState.comboStats;
+                    this.nightmareMode = gameState.nightmareMode || false;
     
                     return true;
                 }
@@ -1367,6 +1458,7 @@ document.addEventListener('click', function(e) {
 
 // Слушатель события после выполнения хода для сохранения состояния
 document.addEventListener(AFTER_MOVE_EVENT, function(event) {
+    console.debug('event ', event);
     if (event.detail && event.detail.state) {
         const gameState = {
             ...event.detail.state,
@@ -1379,6 +1471,17 @@ document.addEventListener(AFTER_MOVE_EVENT, function(event) {
 // Инициализация системы достижений
 let achievementsSystem;
 let tutorialSystem;
+
+
+function startNightmareMode() {
+    // Очищаем сохраненное состояние игры из localStorage
+    localStorage.removeItem('pokerPuzzleGameState');
+    // Создаем новую игру в режиме Nightmare
+    game = new PokerPuzzle();
+    game.nightmareMode = true;
+    game.viewNightmareMode();
+    hideAchievementsPopup();
+}
 
 // Запуск игры
 window.addEventListener('load', () => {
