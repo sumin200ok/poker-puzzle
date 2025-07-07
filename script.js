@@ -645,9 +645,7 @@ class PokerPuzzle {
         
         // Запускаем таймер если в режиме Rapid
         if (this.rapidMode) {
-            console.log('Rapid mode detected in init, starting timer');
             this.startRapidTimer();
-            console.log('Timer started, rapidTimer:', this.rapidTimer);
         }
     }
 
@@ -842,13 +840,11 @@ class PokerPuzzle {
     startRapidTimer() {
         if (!this.rapidMode) return;
         
-        console.log('Starting Rapid timer');
         this.rapidTimeLeft = 60;
         this.updateRapidTimerDisplay();
         
         this.rapidTimer = setInterval(() => {
             this.rapidTimeLeft--;
-            console.log('Rapid timer: ', this.rapidTimeLeft);
             this.updateRapidTimerDisplay();
             
             if (this.rapidTimeLeft <= 0) {
@@ -869,7 +865,6 @@ class PokerPuzzle {
         if (scoreElement) {
             if (this.rapidMode) {
                 scoreElement.textContent = this.rapidTimeLeft;
-                console.log('Updated timer display: ', this.rapidTimeLeft);
             }
         }
     }
@@ -1451,8 +1446,6 @@ class PokerPuzzle {
                     this.comboStats = gameState.comboStats;
                     this.nightmareMode = gameState.nightmareMode || false;
                     this.rapidMode = gameState.rapidMode || false;
-                    
-                    console.log('Loaded game state - nightmareMode:', this.nightmareMode, 'rapidMode:', this.rapidMode);
     
                     return true;
                 }
@@ -1589,12 +1582,10 @@ function startNightmareMode() {
 }
 
 function startRapidMode() {
-    console.log('Starting Rapid mode');
     // Очищаем сохраненное состояние игры из localStorage
     localStorage.removeItem('pokerPuzzleGameState');
     // Создаем новую игру в режиме Rapid
     game = new PokerPuzzle({ rapidMode: true });
-    console.log('Rapid mode set to: ', game.rapidMode);
     game.viewRapidMode();
     hideAchievementsPopup();
 }
