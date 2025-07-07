@@ -498,19 +498,17 @@ class Achievements {
         };
 
         for (let achievement in conditions) {
-            if (this.achievements[achievement] !== conditions[achievement]()) {
-                this.unlockAchievement(achievement, conditions[achievement]());
+            if (!this.achievements[achievement] && conditions[achievement]()) {
+                this.unlockAchievement(achievement);
                 this.updateAchievementsDisplay();
             }
         }
     }
 
-    unlockAchievement(achievementKey, unlocked) {
-        this.achievements[achievementKey] = unlocked;
+    unlockAchievement(achievementKey) {
+        this.achievements[achievementKey] = true;
         this.saveAchievements();
-        if (unlocked) {
-            this.showAchievementUnlocked(achievementKey);
-        }
+        this.showAchievementUnlocked(achievementKey);
     }
 
     showAchievementUnlocked(achievementKey) {
@@ -1577,7 +1575,6 @@ function startNightmareMode() {
     localStorage.removeItem('pokerPuzzleGameState');
     // Создаем новую игру в режиме Nightmare
     game = new PokerPuzzle({ mode: PokerPuzzle.NIGHTMARE_MODE });
-    game.viewNightmareMode();
     hideAchievementsPopup();
 }
 
@@ -1586,7 +1583,6 @@ function startRapidMode() {
     localStorage.removeItem('pokerPuzzleGameState');
     // Создаем новую игру в режиме Rapid
     game = new PokerPuzzle({ mode: PokerPuzzle.RAPID_MODE });
-    game.viewRapidMode();
     hideAchievementsPopup();
 }
 
