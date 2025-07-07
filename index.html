@@ -34,9 +34,9 @@
             <div class="score-value" id="score">0</div>
             <div onclick="showAchievementsPopup()" id="achievementsBtn">☆☆☆☆☆</div>
         </div>
-        <button class="btn new-game-btn" onclick="showNewGamePopup()">Pass</button>
-        <button class="btn undo-btn" id="undoBtn" onclick="game.undoLastMove()" disabled>Undo</button>
-        <button class="btn help-btn" onclick="showHelpPopup()">Rules</button>
+        <button class="btn new-game-btn" onclick="showNewGamePopup()">pass</button>
+        <button class="btn undo-btn" id="undoBtn" onclick="game.undoLastMove()" disabled>undo</button>
+        <button class="btn help-btn" onclick="showHelpPopup()">rules</button>
     </div>
 </div>
 <div class="copy">Poker Puzzle 1.6-beta &copy; 2025</div>
@@ -109,9 +109,6 @@
     <div class="popup">
         <button class="btn btn-close" onclick="hideAchievementsPopup()">✕</button>
         <h3>Achievements</h3>
-        <div>
-            <button class="btn nightmare-btn" onclick="startNightmareMode()">Nightmare</button>
-        </div>
         <div id="achievementsList" class="achievements-list">
             <div class="achievement-item" data-achievement="royal-flush">
                 <img src="achrf.png">
@@ -132,6 +129,7 @@
                 <span id="achievementsHighScore">0</span>
             </div>
         </div>
+        <div id="superGame" class="achievements-super-game"></div>
     </div>
 </div>
 <script src="all.js?v=174"></script>

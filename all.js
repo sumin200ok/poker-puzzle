@@ -29,7 +29,7 @@ class Tutorial {
         {
             version: 1,
             element: '.score-display',
-            description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉'
+            description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉 <br>Collect all achievements to unlock 🌟two super games🌟'
         },
         {
             version: 1,
@@ -575,8 +575,14 @@ class Achievements {
                 buttonHTML += '☆'; // Пустая звезда
             }
         }
-        
         buttonElement.innerHTML = buttonHTML;
+        const superGame = document.getElementById('superGame');
+        if (!superGame) return;
+        if (unlockedCount >= totalAchievements) {
+            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="startNightmareMode()">Nightmare</button>';
+        } else {
+            superGame.innerHTML = 'Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong>';
+        }
     }
 
     updateAchievementsHighScore() {
