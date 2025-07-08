@@ -1258,7 +1258,6 @@ class PokerPuzzle {
                 // Показываем какие карты выиграли, а какие нет
                 this.highlightWinningCards(comboResult.winningCardIndices);
 
-                this.showScoreAnimation(comboResult.combo.points);
                 this.createConfetti();
 
                 // Обновляем статистику
@@ -1343,20 +1342,6 @@ class PokerPuzzle {
                 banner.parentNode.removeChild(banner);
             }
         }, 4500);
-    }
-
-    showScoreAnimation(points) {
-        const scoreElement = document.createElement('div');
-        scoreElement.className = 'score-animation';
-        scoreElement.textContent = `+${points}`;
-
-        document.querySelector('.game-container').appendChild(scoreElement);
-
-        setTimeout(() => {
-            if (scoreElement.parentNode) {
-                scoreElement.parentNode.removeChild(scoreElement);
-            }
-        }, 1500);
     }
 
     createConfetti() {
