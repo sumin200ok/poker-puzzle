@@ -1474,8 +1474,6 @@ class PokerPuzzle {
     }
 }
 
-
-
 // Глобальные константы для названий событий
 const BEFORE_MOVE_EVENT = 'beforeMoveEvent';
 const AFTER_MOVE_EVENT = 'afterMoveEvent';
@@ -1554,7 +1552,6 @@ function showTutorialFromHelp() {
 }
 
 
-
 // Закрытие popup'ов по клику вне их области
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('popup-overlay')) {
@@ -1581,9 +1578,6 @@ document.addEventListener(AFTER_MOVE_EVENT, function(event) {
 // Инициализация системы достижений
 let achievementsSystem;
 let tutorialSystem;
-
-
-
 
 // Запуск игры
 window.addEventListener('load', () => {
