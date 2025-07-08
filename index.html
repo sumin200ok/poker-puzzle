@@ -30,13 +30,13 @@
     <div class="game-board" id="game-board"></div>
     <div class="sidebar">
         <div class="logo"><img src="/newlogo.png" alt="Poker Puzzle"></div>
-        <div class="score-display" onclick="showAchievementsPopup()">
+        <div class="score-display" onclick="Popup.show('achievementsPopup')">
             <div class="score-value" id="score">0</div>
-            <div onclick="showAchievementsPopup()" id="achievementsBtn">☆☆☆☆☆</div>
+            <div onclick="Popup.show('achievementsPopup')" id="achievementsBtn">☆☆☆☆☆</div>
         </div>
         <button class="btn new-game-btn" onclick="showNewGamePopup()">pass</button>
         <button class="btn undo-btn" id="undoBtn" onclick="PokerPuzzle.getInstance().undoLastMove()" disabled>undo</button>
-        <button class="btn help-btn" onclick="showHelpPopup()">rules</button>
+        <button class="btn help-btn" onclick="Popup.show('helpPopup')">rules</button>
     </div>
 </div>
 <div class="copy">Poker Puzzle 1.6-beta &copy; 2025</div>
@@ -100,14 +100,14 @@
         </div>
         <div class="popup-buttons">
             <button class="btn btn-primary" onclick="showTutorialFromHelp()">Tutorial</button>
-            <button class="btn btn-secondary" onclick="hideHelpPopup()">Close</button>
+            <button class="btn btn-secondary" onclick="Popup.close()">Close</button>
         </div>
     </div>
 </div>
 
 <div id="achievementsPopup" class="popup-overlay">
     <div class="popup">
-        <button class="btn btn-close" onclick="hideAchievementsPopup()">✕</button>
+        <button class="btn btn-close" onclick="Popup.close()">✕</button>
         <h3>Achievements</h3>
         <div id="achievementsList" class="achievements-list">
             <div class="achievement-item" data-achievement="royal-flush">

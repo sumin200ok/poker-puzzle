@@ -636,7 +636,7 @@ class PokerPuzzle {
         PokerPuzzle.instance = new PokerPuzzle({ mode: mode });
         
         // Закрываем popup достижений если он открыт
-        hideAchievementsPopup();
+        Popup.close();
         
         return PokerPuzzle.instance;
     }
@@ -1480,9 +1480,30 @@ class PokerPuzzle {
 const BEFORE_MOVE_EVENT = 'beforeMoveEvent';
 const AFTER_MOVE_EVENT = 'afterMoveEvent';
 
+class Popup {
+    static activePopup = null;
+
+    static show(id) {
+        // Закрываем активный popup если есть
+        this.close();
+        
+        const popup = document.getElementById(id);
+        if (popup) {
+            popup.classList.add('show');
+            this.activePopup = popup;
+        }
+    }
+
+    static close() {
+        if (this.activePopup) {
+            this.activePopup.classList.remove('show');
+            this.activePopup = null;
+        }
+    }
+}
+
 // Функции для управления popup'ами
 function showNewGamePopup() {
-    const popup = document.getElementById('newGamePopup');
     const statsDiv = document.getElementById('gameStats');
     const gameInstance = PokerPuzzle.getInstance();
 
@@ -1511,41 +1532,22 @@ function showNewGamePopup() {
     }
 
     statsDiv.innerHTML = statsHTML;
-    popup.classList.add('show');
+    Popup.show('newGamePopup');
 }
 
 function hideNewGamePopup() {
-    const popup = document.getElementById('newGamePopup');
-    popup.classList.remove('show');
+    Popup.close();
 }
 
 function confirmNewGame() {
-    hideNewGamePopup();
+    Popup.close();
     PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
 }
 
-function showHelpPopup() {
-    const popup = document.getElementById('helpPopup');
-    popup.classList.add('show');
-}
 
-function hideHelpPopup() {
-    const popup = document.getElementById('helpPopup');
-    popup.classList.remove('show');
-}
-
-function showAchievementsPopup() {
-    const popup = document.getElementById('achievementsPopup');
-    popup.classList.add('show');
-}
-
-function hideAchievementsPopup() {
-    const popup = document.getElementById('achievementsPopup');
-    popup.classList.remove('show');
-}
 
 function showTutorialFromHelp() {
-    hideHelpPopup();
+    Popup.close();
     if (tutorialSystem) {
         tutorialSystem.showTutorial();
     }
@@ -1556,7 +1558,7 @@ function showTutorialFromHelp() {
 // Закрытие popup'ов по клику вне их области
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('popup-overlay')) {
-        e.target.classList.remove('show');
+        Popup.close();
     }
 });
 
