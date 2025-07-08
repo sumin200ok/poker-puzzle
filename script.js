@@ -576,8 +576,8 @@ class Achievements {
         buttonElement.innerHTML = buttonHTML;
         const superGame = document.getElementById('superGame');
         if (!superGame) return;
-        if (unlockedCount >= totalAchievements) {
-            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="startNightmareMode()">Nightmare</button><button class="btn rapid-btn" onclick="startRapidMode()">Rapid</button>';
+        if (true) {
+            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="startNightmareMode()">🙀 Nightmare</button><button class="btn rapid-btn" onclick="startRapidMode()">⚡ Rapid</button>';
         } else {
             superGame.innerHTML = 'Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong>';
         }
