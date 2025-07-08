@@ -577,7 +577,7 @@ class Achievements {
         const superGame = document.getElementById('superGame');
         if (!superGame) return;
         if (true) {
-            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="startNightmareMode()">🙀 Nightmare</button><button class="btn rapid-btn" onclick="startRapidMode()">⚡ Rapid</button>';
+            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="PokerPuzzle.startNewGame(PokerPuzzle.NIGHTMARE_MODE)">🙀 Nightmare</button><button class="btn rapid-btn" onclick="PokerPuzzle.startNewGame(PokerPuzzle.RAPID_MODE)">⚡ Rapid</button>';
         } else {
             superGame.innerHTML = 'Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong>';
         }
@@ -586,10 +586,10 @@ class Achievements {
     updateAchievementsHighScore() {
         const highScoreElement = document.getElementById('achievementsHighScore');
         if (highScoreElement) {
-            highScoreElement.textContent = game.highScore;
+            highScoreElement.textContent = PokerPuzzle.getInstance().highScore;
         }
         const lastRecordElement = document.getElementById('achievementsLastRecord');
-        if (game.highScore > 0) {
+        if (PokerPuzzle.getInstance().highScore > 0) {
             lastRecordElement.classList.add('active')
         } else {
             lastRecordElement.classList.remove('active')
@@ -601,6 +601,8 @@ class PokerPuzzle {
     static DEFAULT_MODE = 'default';
     static RAPID_MODE = 'rapid';
     static NIGHTMARE_MODE = 'nightmare';
+    
+    static instance = null;
 
     constructor(options = {}) {
         this.board = [];
@@ -617,7 +619,33 @@ class PokerPuzzle {
         this.mode = options.mode || PokerPuzzle.DEFAULT_MODE;
         this.rapidTimer = null; // Таймер для режима Rapid
         this.rapidTimeLeft = 60; // Время в секундах для режима Rapid
+        
         this.init();
+    }
+    
+    static startNewGame(mode = PokerPuzzle.DEFAULT_MODE) {
+        // Останавливаем таймер если он запущен
+        if (PokerPuzzle.instance && PokerPuzzle.instance.rapidTimer) {
+            PokerPuzzle.instance.stopRapidTimer();
+        }
+        
+        // Очищаем сохраненное состояние игры из localStorage
+        localStorage.removeItem('pokerPuzzleGameState');
+        
+        // Создаем новый экземпляр игры
+        PokerPuzzle.instance = new PokerPuzzle({ mode: mode });
+        
+        // Закрываем popup достижений если он открыт
+        hideAchievementsPopup();
+        
+        return PokerPuzzle.instance;
+    }
+    
+    static getInstance() {
+        if (!PokerPuzzle.instance) {
+            PokerPuzzle.instance = new PokerPuzzle();
+        }
+        return PokerPuzzle.instance;
     }
 
     init() {
@@ -863,7 +891,7 @@ class PokerPuzzle {
         const scoreElement = document.getElementById('score');
         if (scoreElement) {
             if (this.mode === PokerPuzzle.RAPID_MODE) {
-                scoreElement.textContent = this.rapidTimeLeft;
+                scoreElement.textContent = '⏱ ' + this.rapidTimeLeft;
             }
         }
     }
@@ -1421,6 +1449,12 @@ class PokerPuzzle {
                 // Проверяем, что сохраненное состояние не слишком старое (например, не старше 24 часов)
                 const isExpired = Date.now() - gameState.timestamp > 24 * 60 * 60 * 1000;
                 
+                // Не загружаем состояние для режима Rapid или если режимы не совпадают
+                if (this.mode === PokerPuzzle.RAPID_MODE || 
+                    (gameState.mode && gameState.mode !== this.mode)) {
+                    return false;
+                }
+                
                 if (!isExpired && gameState.board && gameState.score !== undefined) {
                     // Используем ту же структуру, что и в getState()
                     this.board = gameState.board;
@@ -1440,7 +1474,7 @@ class PokerPuzzle {
     }
 }
 
-let game;
+
 
 // Глобальные константы для названий событий
 const BEFORE_MOVE_EVENT = 'beforeMoveEvent';
@@ -1450,28 +1484,29 @@ const AFTER_MOVE_EVENT = 'afterMoveEvent';
 function showNewGamePopup() {
     const popup = document.getElementById('newGamePopup');
     const statsDiv = document.getElementById('gameStats');
+    const gameInstance = PokerPuzzle.getInstance();
 
     // Сохраняем рекорд
-    const isNewRecord = game.saveHighScore(game.score);
-    game.updateHighScoreDisplay();
+    const isNewRecord = gameInstance.saveHighScore(gameInstance.score);
+    gameInstance.updateHighScoreDisplay();
 
     // Формируем статистику
-    let statsHTML = `<div class="stat-item"><span>Current Score</span><span>${game.score}</span></div>`;
+    let statsHTML = `<div class="stat-item"><span>Current Score</span><span>${gameInstance.score}</span></div>`;
     
     // Показываем информацию о рекорде
     if (isNewRecord) {
-        statsHTML += `<div class="stat-item new-record"><span>🏆 NEW RECORD!</span><span>${game.highScore}</span></div>`;
+        statsHTML += `<div class="stat-item new-record"><span>🏆 NEW RECORD!</span><span>${gameInstance.highScore}</span></div>`;
     } else {
-        statsHTML += `<div class="stat-item"><span>Last Record</span><span>${game.highScore}</span></div>`;
+        statsHTML += `<div class="stat-item"><span>Last Record</span><span>${gameInstance.highScore}</span></div>`;
     }
 
-    const totalCombos = Object.values(game.comboStats).reduce((sum, count) => sum + count, 0);
+    const totalCombos = Object.values(gameInstance.comboStats).reduce((sum, count) => sum + count, 0);
     statsHTML += `<div class="stat-item"><span>Total Combinations</span><span>${totalCombos}</span></div><br>`;
 
     // Показываем только комбинации, которые были собраны
-    for (let combo in game.comboStats) {
-        if (game.comboStats[combo] > 0) {
-            statsHTML += `<div class="stat-item"><span>${combo}</span><span>${game.comboStats[combo]}</span></div>`;
+    for (let combo in gameInstance.comboStats) {
+        if (gameInstance.comboStats[combo] > 0) {
+            statsHTML += `<div class="stat-item"><span>${combo}</span><span>${gameInstance.comboStats[combo]}</span></div>`;
         }
     }
 
@@ -1486,9 +1521,7 @@ function hideNewGamePopup() {
 
 function confirmNewGame() {
     hideNewGamePopup();
-    // Очищаем сохраненное состояние игры из localStorage
-    localStorage.removeItem('pokerPuzzleGameState');
-    newGame();
+    PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
 }
 
 function showHelpPopup() {
@@ -1518,15 +1551,7 @@ function showTutorialFromHelp() {
     }
 }
 
-function newGame() {
-    // Останавливаем таймер если он запущен
-    if (game && game.rapidTimer) {
-        game.stopRapidTimer();
-    }
-    game = new PokerPuzzle({ mode: PokerPuzzle.DEFAULT_MODE });
-    // История ходов автоматически очищается в конструкторе
-    // Достижения текущей игры также сбрасываются в конструкторе
-}
+
 
 // Закрытие popup'ов по клику вне их области
 document.addEventListener('click', function(e) {
@@ -1538,6 +1563,11 @@ document.addEventListener('click', function(e) {
 // Слушатель события после выполнения хода для сохранения состояния
 document.addEventListener(AFTER_MOVE_EVENT, function(event) {
     if (event.detail && event.detail.state) {
+        // Не сохраняем состояние для режима Rapid
+        if (event.detail.state.mode === PokerPuzzle.RAPID_MODE) {
+            return;
+        }
+        
         const gameState = {
             ...event.detail.state,
             timestamp: Date.now()
@@ -1551,29 +1581,11 @@ let achievementsSystem;
 let tutorialSystem;
 
 
-function startNightmareMode() {
-    // Останавливаем таймер если он запущен
-    if (game && game.rapidTimer) {
-        game.stopRapidTimer();
-    }
-    // Очищаем сохраненное состояние игры из localStorage
-    localStorage.removeItem('pokerPuzzleGameState');
-    // Создаем новую игру в режиме Nightmare
-    game = new PokerPuzzle({ mode: PokerPuzzle.NIGHTMARE_MODE });
-    hideAchievementsPopup();
-}
 
-function startRapidMode() {
-    // Очищаем сохраненное состояние игры из localStorage
-    localStorage.removeItem('pokerPuzzleGameState');
-    // Создаем новую игру в режиме Rapid
-    game = new PokerPuzzle({ mode: PokerPuzzle.RAPID_MODE });
-    hideAchievementsPopup();
-}
 
 // Запуск игры
 window.addEventListener('load', () => {
-    newGame();
+    PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
     achievementsSystem = new Achievements();
     tutorialSystem = new Tutorial();
 });
