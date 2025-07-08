@@ -663,14 +663,7 @@ class PokerPuzzle {
         this.updateHighScoreDisplay(); // Обновляем отображение рекорда
         this.updateUndoButton(); // Инициализируем кнопку Undo
         
-        const scoreElement = document.getElementById('score');
-        if (scoreElement) {
-            if (this.mode === PokerPuzzle.RAPID_MODE) {
-                this.updateRapidTimerDisplay();
-            } else {
-                scoreElement.textContent = this.score;
-            }
-        }
+        this.updateScore();
         
         // Запускаем таймер если в режиме Rapid
         if (this.mode === PokerPuzzle.RAPID_MODE) {
@@ -736,14 +729,7 @@ class PokerPuzzle {
         this.renderBoard();
         this.updateSelection();
         
-        const scoreElement = document.getElementById('score');
-        if (scoreElement) {
-            if (this.mode === PokerPuzzle.RAPID_MODE) {
-                this.updateRapidTimerDisplay();
-            } else {
-                scoreElement.textContent = this.score;
-            }
-        }
+        this.updateScore();
         
         this.updateUndoButton();
 
@@ -868,11 +854,11 @@ class PokerPuzzle {
         if (this.mode !== PokerPuzzle.RAPID_MODE) return;
         
         this.rapidTimeLeft = 60;
-        this.updateRapidTimerDisplay();
+        this.updateScore();
         
         this.rapidTimer = setInterval(() => {
             this.rapidTimeLeft--;
-            this.updateRapidTimerDisplay();
+            this.updateScore();
             
             if (this.rapidTimeLeft <= 0) {
                 this.endRapidMode();
@@ -887,28 +873,29 @@ class PokerPuzzle {
         }
     }
 
-    updateRapidTimerDisplay() {
+    updateScore() {
         const scoreElement = document.getElementById('score');
         if (scoreElement) {
-            if (this.mode === PokerPuzzle.RAPID_MODE) {
+            if (this.mode === PokerPuzzle.RAPID_MODE && this.rapidTimeLeft > 0) {
                 scoreElement.textContent = '⏱ ' + this.rapidTimeLeft;
+            } else {
+                scoreElement.textContent = this.score;
             }
         }
     }
 
     endRapidMode() {
         this.stopRapidTimer();
-        this.mode = PokerPuzzle.DEFAULT_MODE;
-        this.viewRapidMode();
-        
+        this.moveHistory = [];
+        this.updateUndoButton();
         // Показываем финальный счет
-        const scoreElement = document.getElementById('score');
-        if (scoreElement) {
-            scoreElement.textContent = this.score;
-        }
-        
-        // Показываем popup с результатами
-        showNewGamePopup();
+        this.updateScore();
+        // Показываем анимацию окончания времени
+        this.showTimeUpAnimation();
+    }
+
+    showTimeUpAnimation() {
+
     }
 
     findEmptyColumns() {
@@ -1310,14 +1297,7 @@ class PokerPuzzle {
 
                 }, 1200);
 
-                const scoreElement = document.getElementById('score');
-                if (scoreElement) {
-                    if (this.mode === PokerPuzzle.RAPID_MODE) {
-                        this.updateRapidTimerDisplay();
-                    } else {
-                        scoreElement.textContent = this.score;
-                    }
-                }
+                this.updateScore();
             } else {
                 this.selectedCards = [];
                 this.updateSelection();
