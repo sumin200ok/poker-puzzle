@@ -19,7 +19,7 @@
     <meta name="twitter:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills!">
     <meta name="twitter:image" content="https://poker-puzzle.tiiny.site/share_logo.png">
     <meta name="twitter:site" content="https://poker-puzzle.tiiny.site/">
-    <link rel="stylesheet" href="style.css?v=175">
+    <link rel="stylesheet" href="style.css?v=177">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,15 +39,16 @@
         <button class="btn help-btn" onclick="Popup.show('helpPopup')">rules</button>
     </div>
 </div>
-<div class="copy">Poker Puzzle 1.6-beta &copy; 2025</div>
+<div class="copy">Poker Puzzle 1.7-beta &copy; 2025</div>
 
 <div id="newGamePopup" class="popup-overlay">
     <div class="popup">
+        <button class="btn btn-close" onclick="Popup.close()">✕</button>
         <h3>Game Results</h3>
         <div id="gameStats" class="game-stats"></div>
         <div class="popup-buttons">
             <button class="btn btn-warn" onclick="confirmNewGame()">New Game</button>
-            <button class="btn btn-secondary" onclick="hideNewGamePopup()">Cancel</button>
+            <span id="superGame"></span>
         </div>
     </div>
 </div>
@@ -129,9 +130,9 @@
                 <span id="achievementsHighScore">0</span>
             </div>
         </div>
-        <div id="superGame" class="achievements-super-game"></div>
+        <div class="achievements-super-game">Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong></div>
     </div>
 </div>
-<script src="script.js?v=175"></script>
+<script src="script.js?v=177"></script>
 </body>
 </html>

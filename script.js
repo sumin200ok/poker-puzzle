@@ -577,9 +577,7 @@ class Achievements {
         const superGame = document.getElementById('superGame');
         if (!superGame) return;
         if (true) {
-            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="PokerPuzzle.startNewGame(PokerPuzzle.NIGHTMARE_MODE)">🙀 Nightmare</button><button class="btn rapid-btn" onclick="PokerPuzzle.startNewGame(PokerPuzzle.RAPID_MODE)">⚡ Rapid</button>';
-        } else {
-            superGame.innerHTML = 'Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong>';
+            superGame.innerHTML = '<button class="btn nightmare-btn" onclick="PokerPuzzle.startNewGame(PokerPuzzle.NIGHTMARE_MODE)">Nightmare</button><button class="btn rapid-btn" onclick="PokerPuzzle.startNewGame(PokerPuzzle.RAPID_MODE)">Rapid</button>';
         }
     }
 
