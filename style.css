@@ -38,19 +38,17 @@ body {
     padding: 10px;
     border-radius: 10px;
     position: relative;
-    background: rgba(0, 0, 0, 0.2);
 }
 .nightmare {
     background-image: linear-gradient(0deg, #f60cc2 0%, #1f1f65 20%, #222222 90%);
 }
 
 .rapid {
-    background-image: linear-gradient(-45deg,
-    rgb(2,83,185) 30%,
+    background-image: linear-gradient(-165deg,
+    rgb(2,83,185) 14%,
     rgb(4,189,228) 49.8%,
-    rgb(255,255,255) 50%,
     rgb(4,189,228) 50.1%,
-    rgb(2,83,185) 70%
+    rgb(2,83,185) 88%
     );
 }
 

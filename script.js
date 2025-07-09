@@ -855,6 +855,7 @@ class PokerPuzzle {
         
         this.rapidTimeLeft = 60;
         this.updateScore();
+        this.stopRapidTimer();
         
         this.rapidTimer = setInterval(() => {
             this.rapidTimeLeft--;
@@ -895,7 +896,42 @@ class PokerPuzzle {
     }
 
     showTimeUpAnimation() {
+        // Очищаем игровую доску
+        this.clearBoard();
 
+        const banner = document.createElement('div');
+        banner.className = 'combo-banner';
+        banner.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+        banner.textContent = "⌛ Time's Up!";
+
+        const points = document.createElement('div');
+        points.style.fontSize = '16px';
+        points.style.marginTop = '5px';
+        points.textContent = `Final Score: ${this.score}`;
+        banner.appendChild(points);
+
+        document.querySelector('.game-container').appendChild(banner);
+
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            if (banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+            showNewGamePopup();
+        }, 2000);
+    }
+
+    clearBoard() {
+        // Очищаем доску, устанавливая все позиции в null
+        for (let i = 0; i < this.board.length; i++) {
+            this.board[i] = null;
+        }
+        
+        // Перерисовываем доску
+        this.renderBoard();
     }
 
     findEmptyColumns() {
