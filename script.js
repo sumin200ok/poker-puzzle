@@ -584,12 +584,15 @@ class Achievements {
     }
 
     updateAchievementsHighScore() {
+        const gameInstance = PokerPuzzle.getInstance();
+        if (!gameInstance) return;
+        
         const highScoreElement = document.getElementById('achievementsHighScore');
         if (highScoreElement) {
-            highScoreElement.textContent = PokerPuzzle.getInstance().highScore;
+            highScoreElement.textContent = gameInstance.highScore;
         }
         const lastRecordElement = document.getElementById('achievementsLastRecord');
-        if (PokerPuzzle.getInstance().highScore > 0) {
+        if (gameInstance.highScore > 0) {
             lastRecordElement.classList.add('active')
         } else {
             lastRecordElement.classList.remove('active')
@@ -603,6 +606,7 @@ class PokerPuzzle {
     static NIGHTMARE_MODE = 'nightmare';
     
     static instance = null;
+    static eventListenersSetup = false; // Флаг для отслеживания установки обработчиков
 
     constructor(options = {}) {
         this.board = [];
@@ -643,7 +647,7 @@ class PokerPuzzle {
     
     static getInstance() {
         if (!PokerPuzzle.instance) {
-            PokerPuzzle.instance = new PokerPuzzle();
+            return null;
         }
         return PokerPuzzle.instance;
     }
@@ -659,7 +663,13 @@ class PokerPuzzle {
         }
         
         this.renderBoard();
-        this.setupEventListeners();
+        
+        // Устанавливаем обработчики событий только один раз
+        if (!PokerPuzzle.eventListenersSetup) {
+            this.setupEventListeners();
+            PokerPuzzle.eventListenersSetup = true;
+        }
+        
         this.updateHighScoreDisplay(); // Обновляем отображение рекорда
         this.updateUndoButton(); // Инициализируем кнопку Undo
         
@@ -1212,18 +1222,21 @@ class PokerPuzzle {
         // Мышь события
         board.addEventListener('mousedown', (e) => {
             e.preventDefault();
-            this.startSelection(e);
+            const game = PokerPuzzle.getInstance();
+            if (game) game.startSelection(e);
         });
 
         board.addEventListener('mouseover', (e) => {
-            if (this.isSelecting) {
-                this.continueSelection(e);
+            const game = PokerPuzzle.getInstance();
+            if (game && game.isSelecting) {
+                game.continueSelection(e);
             }
         });
 
         document.addEventListener('mouseup', () => {
-            if (this.isSelecting) {
-                this.endSelection();
+            const game = PokerPuzzle.getInstance();
+            if (game && game.isSelecting) {
+                game.endSelection();
             }
         });
 
@@ -1233,25 +1246,28 @@ class PokerPuzzle {
             const touch = e.touches[0];
             const element = document.elementFromPoint(touch.clientX, touch.clientY);
             if (element) {
-                this.startSelection({ target: element });
+                const game = PokerPuzzle.getInstance();
+                if (game) game.startSelection({ target: element });
             }
         }, { passive: false });
 
         board.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            if (this.isSelecting) {
+            const game = PokerPuzzle.getInstance();
+            if (game && game.isSelecting) {
                 const touch = e.touches[0];
                 const element = document.elementFromPoint(touch.clientX, touch.clientY);
                 if (element) {
-                    this.continueSelection({ target: element });
+                    game.continueSelection({ target: element });
                 }
             }
         }, { passive: false });
 
         document.addEventListener('touchend', (e) => {
-            if (this.isSelecting) {
+            const game = PokerPuzzle.getInstance();
+            if (game && game.isSelecting) {
                 e.preventDefault();
-                this.endSelection();
+                game.endSelection();
             }
         }, { passive: false });
     }
@@ -1520,6 +1536,11 @@ class Popup {
 function showNewGamePopup() {
     const statsDiv = document.getElementById('gameStats');
     const gameInstance = PokerPuzzle.getInstance();
+
+    if (!gameInstance) {
+        console.error('Game instance not found');
+        return;
+    }
 
     // Сохраняем рекорд
     const isNewRecord = gameInstance.saveHighScore(gameInstance.score);
