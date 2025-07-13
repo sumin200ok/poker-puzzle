@@ -625,19 +625,16 @@ class PokerPuzzle {
         this.init();
     }
     
-    static startNewGame(mode = PokerPuzzle.DEFAULT_MODE) {
-        // Останавливаем таймер если он запущен
+    static startNewGame(mode) {
         if (PokerPuzzle.instance && PokerPuzzle.instance.rapidTimer) {
             PokerPuzzle.instance.stopRapidTimer();
         }
-        
-        // Очищаем сохраненное состояние игры из localStorage
-        localStorage.removeItem('pokerPuzzleGameState');
-        
-        // Создаем новый экземпляр игры
+
+        if (mode) {
+            localStorage.removeItem('pokerPuzzleGameState');
+        }
+
         PokerPuzzle.instance = new PokerPuzzle({ mode: mode });
-        
-        // Закрываем popup достижений если он открыт
         Popup.close();
         
         return PokerPuzzle.instance;
@@ -1480,8 +1477,7 @@ class PokerPuzzle {
                 const isExpired = Date.now() - gameState.timestamp > 24 * 60 * 60 * 1000;
                 
                 // Не загружаем состояние для режима Rapid или если режимы не совпадают
-                if (this.mode === PokerPuzzle.RAPID_MODE || 
-                    (gameState.mode && gameState.mode !== this.mode)) {
+                if (this.mode === PokerPuzzle.RAPID_MODE) {
                     return false;
                 }
                 
@@ -1568,16 +1564,10 @@ function showNewGamePopup() {
     Popup.show('newGamePopup');
 }
 
-function hideNewGamePopup() {
-    Popup.close();
-}
-
 function confirmNewGame() {
     Popup.close();
     PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
 }
-
-
 
 function showTutorialFromHelp() {
     Popup.close();
@@ -1616,7 +1606,7 @@ let tutorialSystem;
 
 // Запуск игры
 window.addEventListener('load', () => {
-    PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
+    PokerPuzzle.startNewGame();
     achievementsSystem = new Achievements();
     tutorialSystem = new Tutorial();
 });
