@@ -19,11 +19,11 @@
     <meta name="twitter:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills!">
     <meta name="twitter:image" content="https://poker-puzzle.tiiny.site/share_logo.png">
     <meta name="twitter:site" content="https://poker-puzzle.tiiny.site/">
-    <link rel="stylesheet" href="style.css?v=177">
+    <link rel="stylesheet" href="style.css?v=18">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&family=Shippori+Mincho:wght@400;700&family=Playball&family=Vast+Shadow&display=swap" rel="stylesheet">
 </head>
 <body>
 <div id="gameContainer" class="game-container">
@@ -38,8 +38,9 @@
         <button class="btn undo-btn" id="undoBtn" onclick="PokerPuzzle.getInstance().undoLastMove()" disabled>undo</button>
         <button class="btn help-btn" onclick="Popup.show('helpPopup')">rules</button>
     </div>
+    <button class="btn design-btn" onclick="PokerPuzzle.switchDesign()">⚙</button>
 </div>
-<div class="copy">Poker Puzzle 1.7-beta &copy; 2025</div>
+<div class="copy">Poker Puzzle 1.8-beta &copy; 2025</div>
 
 <div id="newGamePopup" class="popup-overlay">
     <div class="popup">
@@ -133,6 +134,6 @@
         <div class="achievements-super-game">Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong></div>
     </div>
 </div>
-<script src="script.js?v=177"></script>
+<script src="script.js?v=18"></script>
 </body>
 </html>

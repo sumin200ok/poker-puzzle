@@ -253,7 +253,7 @@ body {
     text-align: center;
     flex-grow: 1;
     display: flex;
-    align-items: center;
+    align-items: end;
     justify-content: center;
     line-height: 1;
 }
@@ -262,13 +262,44 @@ body {
     font-size: min(12px, 3vw);
     font-weight: bold;
     padding: 0 3px 2px 0;
-    text-align: left;
-    transform: rotate(180deg);
     line-height: 1;
     visibility: hidden;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+.game-board[data-design^="design"] .card-rank-top {
+    display: none;
+}
+.game-board[data-design^="design"] .card-suit-center {
+    flex-grow: 0;
+    justify-content: left;
+    font-size: min(18px, 4vw);
+    padding: 1px 0 0 1px;
+}
+.game-board[data-design^="design"] .card-rank-bottom {
+    display: flex;
+    font-size: min(20px, 6vw);
+    font-weight: normal;
+    padding: 0 3px 2px 0;
+    line-height: 1;
+    visibility: visible;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+.game-board[data-design="design1"] .card-rank-bottom {
+    font-family: "Vast Shadow", serif;
+}
+.game-board[data-design="design2"] .card-rank-bottom {
+    font-family: "Shippori Mincho", serif;
+    font-weight: bold;
+}
+.game-board[data-design="design4"] .card-rank-bottom {
+    font-family: "Playball", serif;
+    font-weight: bold;
 }
 
-/* Popup стили */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -693,4 +724,18 @@ body {
     100% {
         transform: rotateY(360deg);
     }
+}
+
+/* Кнопка смены дизайна карт */
+.design-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    font-size: 30px;
+    cursor: pointer;
+    padding: 0;
+    color: #015e01;
 }

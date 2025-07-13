@@ -1,5 +1,5 @@
 class Tutorial {
-    static version = 1;
+    static version = 2;
     
     static steps = [
         {
@@ -30,6 +30,11 @@ class Tutorial {
             version: 1,
             element: '.score-display',
             description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉 <br>Collect all achievements to unlock 🌟two super games🌟'
+        },
+        {
+            version: 2,
+            element: '.design-btn',
+            description: 'Tap this button to change the card design'
         },
         {
             version: 1,
@@ -603,9 +608,13 @@ class PokerPuzzle {
     static RAPID_MODE = 'rapid';
     static NIGHTMARE_MODE = 'nightmare';
     static WILDFIRE_MODE = 'wildfire';
-    
+
     static instance = null;
     static eventListenersSetup = false; // Флаг для отслеживания установки обработчиков
+
+    // Статический массив стилей дизайна карт
+    static designs = ['', 'design1', 'design2', 'design4'];
+    static currentDesignIndex = 0;
 
     constructor(options = {}) {
         this.board = [];
@@ -626,19 +635,16 @@ class PokerPuzzle {
         this.init();
     }
     
-    static startNewGame(mode = PokerPuzzle.DEFAULT_MODE) {
-        // Останавливаем таймер если он запущен
+    static startNewGame(mode) {
         if (PokerPuzzle.instance && PokerPuzzle.instance.rapidTimer) {
             PokerPuzzle.instance.stopRapidTimer();
         }
-        
-        // Очищаем сохраненное состояние игры из localStorage
-        localStorage.removeItem('pokerPuzzleGameState');
-        
-        // Создаем новый экземпляр игры
+
+        if (mode) {
+            localStorage.removeItem('pokerPuzzleGameState');
+        }
+
         PokerPuzzle.instance = new PokerPuzzle({ mode: mode });
-        
-        // Закрываем popup достижений если он открыт
         Popup.close();
         
         return PokerPuzzle.instance;
@@ -651,7 +657,34 @@ class PokerPuzzle {
         return PokerPuzzle.instance;
     }
 
+    static switchDesign() {
+        // Переключаем на следующий дизайн по кругу
+        PokerPuzzle.currentDesignIndex = (PokerPuzzle.currentDesignIndex + 1) % PokerPuzzle.designs.length;
+
+        // Получаем элемент game-board и устанавливаем атрибут data-design
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.setAttribute('data-design', PokerPuzzle.designs[PokerPuzzle.currentDesignIndex]);
+        }
+
+        // Сохраняем выбранный дизайн в localStorage
+        localStorage.setItem('pokerPuzzleDesignIndex', PokerPuzzle.currentDesignIndex.toString());
+    }
+
+    static loadDesignFromLocalStorage() {
+        const savedDesignIndex = localStorage.getItem('pokerPuzzleDesignIndex');
+        if (savedDesignIndex !== null) {
+            const designIndex = parseInt(savedDesignIndex);
+            if (designIndex >= 0 && designIndex < PokerPuzzle.designs.length) {
+                PokerPuzzle.currentDesignIndex = designIndex;
+            }
+        }
+    }
+
     init() {
+        // Загружаем сохраненный дизайн
+        PokerPuzzle.loadDesignFromLocalStorage();
+
         // Пытаемся загрузить сохраненное состояние
         const loaded = this.loadGameFromLocalStorage();
         
@@ -661,6 +694,12 @@ class PokerPuzzle {
             this.initComboStats();
         }
         
+        // Инициализируем текущий дизайн
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.setAttribute('data-design', PokerPuzzle.designs[PokerPuzzle.currentDesignIndex]);
+        }
+
         this.renderBoard();
         
         // Устанавливаем обработчики событий только один раз
@@ -874,7 +913,7 @@ class PokerPuzzle {
     // Сжигает одну случайную карту в режиме Wildfire
     async burnRandomCard() {
         if (this.mode !== PokerPuzzle.WILDFIRE_MODE) return;
-        
+
         // Находим все карты на поле
         const availableCards = [];
         for (let i = 0; i < this.board.length; i++) {
@@ -882,14 +921,14 @@ class PokerPuzzle {
                 availableCards.push(i);
             }
         }
-        
+
         // Если нет карт для сжигания, выходим
         if (availableCards.length === 0) return;
-        
+
         // Выбираем случайную карту
         const randomIndex = Math.floor(Math.random() * availableCards.length);
         const cardIndex = availableCards[randomIndex];
-        
+
         // Подсвечиваем карту перед сжиганием
         const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
         if (cardElement) {
@@ -1507,10 +1546,8 @@ class PokerPuzzle {
                 // Проверяем, что сохраненное состояние не слишком старое (например, не старше 24 часов)
                 const isExpired = Date.now() - gameState.timestamp > 24 * 60 * 60 * 1000;
                 
-                // Не загружаем состояние для режима Rapid, Wildfire или если режимы не совпадают
-                if (this.mode === PokerPuzzle.RAPID_MODE || 
-                    this.mode === PokerPuzzle.WILDFIRE_MODE ||
-                    (gameState.mode && gameState.mode !== this.mode)) {
+                // Не загружаем состояние для режима Rapid или если режимы не совпадают
+                if (this.mode === PokerPuzzle.RAPID_MODE) {
                     return false;
                 }
                 
@@ -1597,16 +1634,10 @@ function showNewGamePopup() {
     Popup.show('newGamePopup');
 }
 
-function hideNewGamePopup() {
-    Popup.close();
-}
-
 function confirmNewGame() {
     Popup.close();
     PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
 }
-
-
 
 function showTutorialFromHelp() {
     Popup.close();
@@ -1626,9 +1657,8 @@ document.addEventListener('click', function(e) {
 // Слушатель события после выполнения хода для сохранения состояния
 document.addEventListener(AFTER_MOVE_EVENT, function(event) {
     if (event.detail && event.detail.state) {
-        // Не сохраняем состояние для режима Rapid или Wildfire
-        if (event.detail.state.mode === PokerPuzzle.RAPID_MODE || 
-            event.detail.state.mode === PokerPuzzle.WILDFIRE_MODE) {
+        // Не сохраняем состояние для режима Rapid
+        if (event.detail.state.mode === PokerPuzzle.RAPID_MODE) {
             return;
         }
         
@@ -1646,7 +1676,7 @@ let tutorialSystem;
 
 // Запуск игры
 window.addEventListener('load', () => {
-    PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
+    PokerPuzzle.startNewGame();
     achievementsSystem = new Achievements();
     tutorialSystem = new Tutorial();
 });
