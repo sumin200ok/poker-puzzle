@@ -610,7 +610,7 @@ class PokerPuzzle {
     
     static instance = null;
     static eventListenersSetup = false; // Флаг для отслеживания установки обработчиков
-    
+
     // Статический массив стилей дизайна карт
     static designs = ['', 'design1', 'design2', 'design4'];
     static currentDesignIndex = 0;
@@ -634,16 +634,16 @@ class PokerPuzzle {
         this.init();
     }
     
-    static startNewGame(mode = PokerPuzzle.DEFAULT_MODE) {
-        // Останавливаем таймер если он запущен
+    static startNewGame(mode) {
         if (PokerPuzzle.instance && PokerPuzzle.instance.rapidTimer) {
             PokerPuzzle.instance.stopRapidTimer();
         }
-        
-        // Создаем новый экземпляр игры
+
+        if (mode) {
+            localStorage.removeItem('pokerPuzzleGameState');
+        }
+
         PokerPuzzle.instance = new PokerPuzzle({ mode: mode });
-        
-        // Закрываем popup достижений если он открыт
         Popup.close();
         
         return PokerPuzzle.instance;
@@ -655,21 +655,21 @@ class PokerPuzzle {
         }
         return PokerPuzzle.instance;
     }
-    
+
     static switchDesign() {
         // Переключаем на следующий дизайн по кругу
         PokerPuzzle.currentDesignIndex = (PokerPuzzle.currentDesignIndex + 1) % PokerPuzzle.designs.length;
-        
+
         // Получаем элемент game-board и устанавливаем атрибут data-design
         const gameBoard = document.getElementById('game-board');
         if (gameBoard) {
             gameBoard.setAttribute('data-design', PokerPuzzle.designs[PokerPuzzle.currentDesignIndex]);
         }
-        
+
         // Сохраняем выбранный дизайн в localStorage
         localStorage.setItem('pokerPuzzleDesignIndex', PokerPuzzle.currentDesignIndex.toString());
     }
-    
+
     static loadDesignFromLocalStorage() {
         const savedDesignIndex = localStorage.getItem('pokerPuzzleDesignIndex');
         if (savedDesignIndex !== null) {
@@ -683,7 +683,7 @@ class PokerPuzzle {
     init() {
         // Загружаем сохраненный дизайн
         PokerPuzzle.loadDesignFromLocalStorage();
-        
+
         // Пытаемся загрузить сохраненное состояние
         const loaded = this.loadGameFromLocalStorage();
         
@@ -698,7 +698,7 @@ class PokerPuzzle {
         if (gameBoard) {
             gameBoard.setAttribute('data-design', PokerPuzzle.designs[PokerPuzzle.currentDesignIndex]);
         }
-        
+
         this.renderBoard();
         
         // Устанавливаем обработчики событий только один раз
@@ -1519,8 +1519,7 @@ class PokerPuzzle {
                 const isExpired = Date.now() - gameState.timestamp > 24 * 60 * 60 * 1000;
                 
                 // Не загружаем состояние для режима Rapid или если режимы не совпадают
-                if (this.mode === PokerPuzzle.RAPID_MODE || 
-                    (gameState.mode && gameState.mode !== this.mode)) {
+                if (this.mode === PokerPuzzle.RAPID_MODE) {
                     return false;
                 }
                 
@@ -1607,16 +1606,10 @@ function showNewGamePopup() {
     Popup.show('newGamePopup');
 }
 
-function hideNewGamePopup() {
-    Popup.close();
-}
-
 function confirmNewGame() {
     Popup.close();
     PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
 }
-
-
 
 function showTutorialFromHelp() {
     Popup.close();
@@ -1655,7 +1648,7 @@ let tutorialSystem;
 
 // Запуск игры
 window.addEventListener('load', () => {
-    PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
+    PokerPuzzle.startNewGame();
     achievementsSystem = new Achievements();
     tutorialSystem = new Tutorial();
 });
