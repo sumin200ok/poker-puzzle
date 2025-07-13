@@ -605,6 +605,10 @@ class PokerPuzzle {
     
     static instance = null;
     static eventListenersSetup = false; // Флаг для отслеживания установки обработчиков
+    
+    // Статический массив стилей дизайна карт
+    static designs = ['', 'design1', 'design2', 'design4'];
+    static currentDesignIndex = 0;
 
     constructor(options = {}) {
         this.board = [];
@@ -649,8 +653,35 @@ class PokerPuzzle {
         }
         return PokerPuzzle.instance;
     }
+    
+    static switchDesign() {
+        // Переключаем на следующий дизайн по кругу
+        PokerPuzzle.currentDesignIndex = (PokerPuzzle.currentDesignIndex + 1) % PokerPuzzle.designs.length;
+        
+        // Получаем элемент game-board и устанавливаем атрибут data-design
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.setAttribute('data-design', PokerPuzzle.designs[PokerPuzzle.currentDesignIndex]);
+        }
+        
+        // Сохраняем выбранный дизайн в localStorage
+        localStorage.setItem('pokerPuzzleDesignIndex', PokerPuzzle.currentDesignIndex.toString());
+    }
+    
+    static loadDesignFromLocalStorage() {
+        const savedDesignIndex = localStorage.getItem('pokerPuzzleDesignIndex');
+        if (savedDesignIndex !== null) {
+            const designIndex = parseInt(savedDesignIndex);
+            if (designIndex >= 0 && designIndex < PokerPuzzle.designs.length) {
+                PokerPuzzle.currentDesignIndex = designIndex;
+            }
+        }
+    }
 
     init() {
+        // Загружаем сохраненный дизайн
+        PokerPuzzle.loadDesignFromLocalStorage();
+        
         // Пытаемся загрузить сохраненное состояние
         const loaded = this.loadGameFromLocalStorage();
         
@@ -658,6 +689,12 @@ class PokerPuzzle {
             // Если не удалось загрузить, создаем новую игру
             this.createDeck();
             this.initComboStats();
+        }
+        
+        // Инициализируем текущий дизайн
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.setAttribute('data-design', PokerPuzzle.designs[PokerPuzzle.currentDesignIndex]);
         }
         
         this.renderBoard();
