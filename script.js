@@ -843,7 +843,7 @@ class PokerPuzzle {
     viewGameMode() {
         const boardElement = document.getElementById('gameContainer');
         // Убираем все классы режимов
-        boardElement.classList.remove('rapid', 'nightmare', 'wildfire');
+        boardElement.classList.remove('rapid', 'nightmare', 'wildfire', 'default');
         boardElement.classList.add(this.mode);
     }
 
@@ -872,7 +872,7 @@ class PokerPuzzle {
     }
 
     // Сжигает одну случайную карту в режиме Wildfire
-    burnRandomCard() {
+    async burnRandomCard() {
         if (this.mode !== PokerPuzzle.WILDFIRE_MODE) return;
         
         // Находим все карты на поле
@@ -897,6 +897,12 @@ class PokerPuzzle {
         }
 
         this.board[cardIndex] = null;
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 1500);
+        });
     }
 
     updateScore() {
@@ -1353,7 +1359,7 @@ class PokerPuzzle {
 
                         // Сжигаем случайную карту в режиме Wildfire (включает гравитацию)
                         if (this.mode === PokerPuzzle.WILDFIRE_MODE) {
-                            this.burnRandomCard();
+                            await this.burnRandomCard();
                         }
 
                         await this.animateGravity();
