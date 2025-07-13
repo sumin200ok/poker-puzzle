@@ -1,5 +1,5 @@
 class Tutorial {
-    static version = 1;
+    static version = 2;
     
     static steps = [
         {
@@ -30,6 +30,11 @@ class Tutorial {
             version: 1,
             element: '.score-display',
             description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉 <br>Collect all achievements to unlock 🌟two super games🌟'
+        },
+        {
+            version: 2,
+            element: '.design-btn',
+            description: 'Tap this button to change the card design'
         },
         {
             version: 1,
@@ -634,9 +639,6 @@ class PokerPuzzle {
         if (PokerPuzzle.instance && PokerPuzzle.instance.rapidTimer) {
             PokerPuzzle.instance.stopRapidTimer();
         }
-        
-        // Очищаем сохраненное состояние игры из localStorage
-        localStorage.removeItem('pokerPuzzleGameState');
         
         // Создаем новый экземпляр игры
         PokerPuzzle.instance = new PokerPuzzle({ mode: mode });

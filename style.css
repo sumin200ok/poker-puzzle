@@ -700,25 +700,12 @@ body {
 .design-btn {
     position: absolute;
     bottom: 10px;
-    right: 10px;
+    right: 15px;
     width: 40px;
     height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-    color: white;
-    font-size: 18px;
+    background: none;
+    font-size: 30px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-}
-
-.design-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
-
-.design-btn:active {
-    transform: scale(0.95);
+    padding: 0;
+    color: #015e01;
 }
