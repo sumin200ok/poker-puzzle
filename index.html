@@ -19,17 +19,19 @@
     <meta name="twitter:description" content="Play Poker Puzzle - a challenging card game where you create poker combinations to score points. Test your poker skills!">
     <meta name="twitter:image" content="https://poker-puzzle.tiiny.site/share_logo.png">
     <meta name="twitter:site" content="https://poker-puzzle.tiiny.site/">
-    <link rel="stylesheet" href="style.css?v=18">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&family=Shippori+Mincho:wght@400;700&family=Playball&family=Vast+Shadow&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&family=Vast+Shadow&display=swap" rel="stylesheet">
+    <!-- build:css style.min.css -->
+    <link rel="stylesheet" href="style.css?v=180">
+    <!-- endbuild -->
 </head>
-<body>
+<body class="wildfire">
 <div id="gameContainer" class="game-container">
     <div class="game-board" id="game-board"></div>
     <div class="sidebar">
-        <div class="logo"><img src="/newlogo.png" alt="Poker Puzzle"></div>
+        <div class="logo"><img src="newlogo.png" alt="Poker Puzzle"></div>
         <div class="score-display" onclick="Popup.show('achievementsPopup')">
             <div class="score-value" id="score">0</div>
             <div onclick="Popup.show('achievementsPopup')" id="achievementsBtn">☆☆☆☆☆</div>
@@ -38,18 +40,29 @@
         <button class="btn undo-btn" id="undoBtn" onclick="PokerPuzzle.getInstance().undoLastMove()" disabled>undo</button>
         <button class="btn help-btn" onclick="Popup.show('helpPopup')">rules</button>
     </div>
-    <button class="btn design-btn" onclick="PokerPuzzle.switchDesign()">⚙</button>
+    <button class="btn design-btn" onclick="PokerPuzzle.switchDesign()">⛭</button>
 </div>
-<div class="copy">Poker Puzzle 1.8-beta &copy; 2025</div>
+<div class="copy">Poker Puzzle 1.11-beta &copy; 2025 · <a href="https://forms.gle/NTfwRdBjsQBrXfGx6">Feedback</a></div>
 
 <div id="newGamePopup" class="popup-overlay">
     <div class="popup">
-        <button class="btn btn-close" onclick="Popup.close()">✕</button>
         <h3>Game Results</h3>
         <div id="gameStats" class="game-stats"></div>
         <div class="popup-buttons">
-            <button class="btn btn-warn" onclick="confirmNewGame()">New Game</button>
-            <span id="superGame"></span>
+            <div class="dropdown-container">
+                <input type="checkbox" id="dropdown-toggle" class="dropdown-checkbox">
+                <label for="dropdown-toggle" class="dropdown-button btn btn-warn">
+                    <span>New Game ►</span>
+                </label>
+                <div class="dropdown-menu" id="superGame">
+                    <button class="btn drift-btn" data-game="drift" onclick="PokerPuzzle.startNewGame(PokerPuzzle.DRIFT_MODE)">Drift</button>
+                    <button class="btn nightmare-btn" data-game="nightmare" onclick="PokerPuzzle.startNewGame(PokerPuzzle.NIGHTMARE_MODE)">Nightmare</button>
+                    <button class="btn rapid-btn" data-game="rapid" onclick="PokerPuzzle.startNewGame(PokerPuzzle.RAPID_MODE)">Rapid</button>
+                    <button class="btn wildfire-btn" data-game="wildfire" onclick="PokerPuzzle.startNewGame(PokerPuzzle.WILDFIRE_MODE)">Wildfire</button>
+                    <button class="btn simple-btn" data-game="simple" onclick="PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE)">Simple</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="Popup.close()">Cancel</button>
         </div>
     </div>
 </div>
@@ -114,26 +127,39 @@
         <div id="achievementsList" class="achievements-list">
             <div class="achievement-item" data-achievement="royal-flush">
                 <img src="achrf.png">
+                <div class="achievement-desc">unlock <strong>All</strong></div>
             </div>
             <div class="achievement-item" data-achievement="straight-flush">
                 <img src="achsf.png">
+                <div class="achievement-desc">unlock <strong>Drift</strong></div>
             </div>
             <div class="achievement-item" data-achievement="four-of-a-kind">
                 <img src="achdq.png">
+                <div class="achievement-desc">unlock <strong>Nightmare</strong></div>
             </div>
             <div class="achievement-item" data-achievement="full-house">
                 <img src="achflhs.png">
+                <div class="achievement-desc">unlock <strong>Rapid</strong></div>
             </div>
             <div class="achievement-item" data-achievement="flush">
                 <img src="achtf.png">
+                <div class="achievement-desc">unlock <strong>Wildfire</strong></div>
             </div>
-            <div id="achievementsLastRecord" class="high-score-info">
-                <span id="achievementsHighScore">0</span>
+            <div id="achievementsLastRecord" class="achievement-item">
+                <img src="achreq.png">
+                <span id="achievementsHighScore" class="high-score-info">0</span>
+                <div class="achievement-desc">max record</div>
             </div>
         </div>
-        <div class="achievements-super-game">Collect all achievements to unlock<br/><strong>🌟 two super games 🌟</strong></div>
     </div>
 </div>
-<script src="script.js?v=18"></script>
+<!-- build:js script.min.js -->
+<script src="js/Tutorial.js?v=180"></script>
+<script src="js/Combinations.js?v=180"></script>
+<script src="js/Achievements.js?v=180"></script>
+<script src="js/Popup.js?v=180"></script>
+<script src="js/PokerPuzzle.js?v=180"></script>
+<script src="js/main.js?v=180"></script>
+<!-- endbuild -->
 </body>
 </html>
