@@ -32,11 +32,6 @@ class Tutorial {
             description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉 <br>Collect achievements to unlock 🌟super games🌟'
         },
         {
-            version: 2,
-            element: '.design-btn',
-            description: 'Tap this button to change the card design'
-        },
-        {
             version: 1,
             description: 'Congratulations 🎉 Now you know the basics of the game. Good luck in Poker Puzzle!'
         }
