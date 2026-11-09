@@ -32,9 +32,8 @@
     <div class="game-board" id="game-board"></div>
     <div class="sidebar">
         <div class="logo"><img src="newlogo.png" alt="Poker Puzzle"></div>
-        <div class="score-display" onclick="Popup.show('achievementsPopup')">
+        <div class="score-display">
             <div class="score-value" id="score">0</div>
-            <div onclick="Popup.show('achievementsPopup')" id="achievementsBtn">☆☆☆☆☆</div>
         </div>
         <button class="btn new-game-btn" onclick="showNewGamePopup()">pass</button>
         <button class="btn undo-btn" id="undoBtn" onclick="PokerPuzzle.getInstance().undoLastMove()" disabled>undo</button>
@@ -119,43 +118,9 @@
     </div>
 </div>
 
-<div id="achievementsPopup" class="popup-overlay">
-    <div class="popup">
-        <button class="btn btn-close" onclick="Popup.close()">✕</button>
-        <h3>Achievements</h3>
-        <div id="achievementsList" class="achievements-list">
-            <div class="achievement-item" data-achievement="royal-flush">
-                <img src="achrf.png">
-                <div class="achievement-desc">unlock <strong>All</strong></div>
-            </div>
-            <div class="achievement-item" data-achievement="straight-flush">
-                <img src="achsf.png">
-                <div class="achievement-desc">unlock <strong>Drift</strong></div>
-            </div>
-            <div class="achievement-item" data-achievement="four-of-a-kind">
-                <img src="achdq.png">
-                <div class="achievement-desc">unlock <strong>Nightmare</strong></div>
-            </div>
-            <div class="achievement-item" data-achievement="full-house">
-                <img src="achflhs.png">
-                <div class="achievement-desc">unlock <strong>Rapid</strong></div>
-            </div>
-            <div class="achievement-item" data-achievement="flush">
-                <img src="achtf.png">
-                <div class="achievement-desc">unlock <strong>Wildfire</strong></div>
-            </div>
-            <div id="achievementsLastRecord" class="achievement-item">
-                <img src="achreq.png">
-                <span id="achievementsHighScore" class="high-score-info">0</span>
-                <div class="achievement-desc">max record</div>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- build:js script.min.js -->
 <script src="js/Tutorial.js?v=180"></script>
 <script src="js/Combinations.js?v=180"></script>
-<script src="js/Achievements.js?v=180"></script>
 <script src="js/Popup.js?v=180"></script>
 <script src="js/PokerPuzzle.js?v=180"></script>
 <script src="js/main.js?v=180"></script>

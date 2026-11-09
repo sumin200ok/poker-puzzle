@@ -102,7 +102,6 @@ body {
     width: 100%;
     text-align: center;
     color: #ffeb3b;
-    cursor: pointer;
 }
 
 .score-value {
@@ -124,12 +123,6 @@ body {
 
 .new-game-btn {
     background: #ef5350;
-}
-
-.achievements-super-game {
-    color:#555;
-    text-align: center;
-    padding: 5px 0 0 0;
 }
 
 .nightmare-btn {
@@ -168,13 +161,6 @@ body {
     color:white;
 }
 
-#superGame button.disabled:before {
-    content: "🔒 ";
-}
-#superGame button.disabled {
-    opacity: 50%;
-}
-
 .undo-btn {
     width: 100%;
     padding: 12px 8px;
@@ -196,11 +182,6 @@ body {
 
 .help-btn {
     background: #2196f3;
-}
-
-#achievementsBtn {
-    letter-spacing: 0;
-    font-size: 10px!important;
 }
 
 .card {
@@ -565,58 +546,6 @@ body {
         opacity: 0;
     }
 }
-
-.achievements-list {
-    max-height: 400px;
-    overflow-y: auto;
-    margin: 0 -15px 0 -15px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-}
-
-.achievement-item {
-    margin: 5px;
-    text-align: center;
-    position: relative;
-}
-.achievement-item img {
-    height: 100px;
-    filter: saturate(0%);
-}
-.achievement-item.unlocked img {
-    filter:none;
-}
-.achievement-desc {
-    text-align: center;
-    font-size: 14px;
-    color:#606060;
-}
-
-.achievements-progress {
-    font-size: 18px;
-    margin-left: 10px;
-    font-weight: normal;
-}
-
-.high-score-info {
-    text-align: center;
-    padding: 11px 0 0 0;
-    position: absolute;
-    top:0;
-    left:0;
-    width: 100%;
-    color: #f5c94c;
-    font-weight: bold;
-    font-size: 21px;
-}
-
-.high-score-info.active {
-    display: block;
-}
-
 
 @media (max-width: 300px) {
     .card-rank-bottom {

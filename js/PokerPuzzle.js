@@ -942,45 +942,11 @@ class PokerPuzzle {
         return false; // Не новый рекорд
     }
 
-    // Получение рекорда для конкретного режима
-    static getHighScoreForMode(mode) {
-        const modeKey = `pokerPuzzleHighScore_${mode}`;
-        const saved = localStorage.getItem(modeKey);
-        return saved ? parseInt(saved) : 0;
-    }
-
-    // Получение общего рекорда (максимальный из всех режимов)
-    static getOverallHighScore() {
-        const modes = [PokerPuzzle.DEFAULT_MODE, PokerPuzzle.RAPID_MODE, PokerPuzzle.NIGHTMARE_MODE, PokerPuzzle.WILDFIRE_MODE, PokerPuzzle.DRIFT_MODE];
-        let maxScore = 0;
-        
-        modes.forEach(mode => {
-            const score = PokerPuzzle.getHighScoreForMode(mode);
-            if (score > maxScore) {
-                maxScore = score;
-            }
-        });
-        
-        return maxScore;
-    }
-
     // Обновление отображения рекорда
     updateHighScoreDisplay() {
         const highScoreElement = document.getElementById('highScore');
         if (highScoreElement) {
             highScoreElement.textContent = this.highScore;
-        }
-        
-        // Также обновляем отображение в попапе достижений
-        const achievementsHighScoreElement = document.getElementById('achievementsHighScore');
-        if (achievementsHighScoreElement) {
-            achievementsHighScoreElement.textContent = this.highScore;
-        }
-        
-        // Обновляем рекорды по режимам в достижениях
-        const achievementsSystem = Achievements.getInstance();
-        if (achievementsSystem) {
-            achievementsSystem.updateAchievementsHighScore();
         }
     }
 

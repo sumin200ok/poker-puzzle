@@ -76,12 +76,11 @@ document.addEventListener(AFTER_MOVE_EVENT, function(event) {
     }
 });
 
-// Инициализация системы достижений
+// Система обучения (туториал)
 let tutorialSystem;
 
 // Запуск игры
 window.addEventListener('load', () => {
     PokerPuzzle.startNewGame();
-    Achievements.getInstance(); // Инициализируем синглетон
     tutorialSystem = new Tutorial();
 }); 

@@ -29,7 +29,7 @@ class Tutorial {
         {
             version: 1,
             element: '.score-display',
-            description: 'Here\'s your current game score! The stars show how many achievements you\'ve unlocked. Tap here to view all your achievements 👉 <br>Collect achievements to unlock 🌟super games🌟'
+            description: 'Here\'s your current game score! Try to beat your record 👉'
         },
         {
             version: 1,
