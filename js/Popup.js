@@ -17,6 +17,5 @@ class Popup {
             this.activePopup.classList.remove('show');
             this.activePopup = null;
         }
-        document.getElementById('dropdown-toggle').checked = false;
     }
 } 

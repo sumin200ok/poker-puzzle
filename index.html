@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&family=Vast+Shadow&display=swap" rel="stylesheet">
     <!-- build:css style.min.css -->
-    <link rel="stylesheet" href="style.css?v=182">
+    <link rel="stylesheet" href="style.css?v=184">
     <!-- endbuild -->
 </head>
 <body class="wildfire">
@@ -35,7 +35,6 @@
         <div class="score-display">
             <div class="score-value" id="score">0</div>
         </div>
-        <button class="btn games-btn" onclick="showGamesPopup()">games</button>
         <button class="btn new-game-btn" onclick="showNewGamePopup()">pass</button>
         <button class="btn undo-btn" id="undoBtn" onclick="PokerPuzzle.getInstance().undoLastMove()" disabled>undo</button>
         <button class="btn help-btn" onclick="Popup.show('helpPopup')">rules</button>
@@ -48,19 +47,7 @@
         <h3>Game Results</h3>
         <div id="gameStats" class="game-stats"></div>
         <div class="popup-buttons">
-            <div class="dropdown-container">
-                <input type="checkbox" id="dropdown-toggle" class="dropdown-checkbox">
-                <label for="dropdown-toggle" class="dropdown-button btn btn-warn">
-                    <span>New Game ►</span>
-                </label>
-                <div class="dropdown-menu" id="superGame">
-                    <button class="btn drift-btn" data-game="drift" onclick="PokerPuzzle.startNewGame(PokerPuzzle.DRIFT_MODE)">Drift</button>
-                    <button class="btn nightmare-btn" data-game="nightmare" onclick="PokerPuzzle.startNewGame(PokerPuzzle.NIGHTMARE_MODE)">Nightmare</button>
-                    <button class="btn rapid-btn" data-game="rapid" onclick="PokerPuzzle.startNewGame(PokerPuzzle.RAPID_MODE)">Rapid</button>
-                    <button class="btn wildfire-btn" data-game="wildfire" onclick="PokerPuzzle.startNewGame(PokerPuzzle.WILDFIRE_MODE)">Wildfire</button>
-                    <button class="btn simple-btn" data-game="simple" onclick="PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE)">Simple</button>
-                </div>
-            </div>
+            <button class="btn btn-warn" onclick="showGamesPopup()">New Game</button>
             <button class="btn btn-secondary" onclick="Popup.close()">Cancel</button>
         </div>
     </div>
@@ -136,11 +123,11 @@
 </div>
 
 <!-- build:js script.min.js -->
-<script src="js/Tutorial.js?v=182"></script>
-<script src="js/Combinations.js?v=182"></script>
-<script src="js/Popup.js?v=182"></script>
-<script src="js/PokerPuzzle.js?v=182"></script>
-<script src="js/main.js?v=182"></script>
+<script src="js/Tutorial.js?v=184"></script>
+<script src="js/Combinations.js?v=184"></script>
+<script src="js/Popup.js?v=184"></script>
+<script src="js/PokerPuzzle.js?v=184"></script>
+<script src="js/main.js?v=184"></script>
 <!-- endbuild -->
 </body>
 </html>
