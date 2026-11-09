@@ -68,7 +68,6 @@ class PokerPuzzle {
             PokerPuzzle.eventListenersSetup = true;
         }
         
-        this.updateHighScoreDisplay(); // Обновляем отображение рекорда
         this.updateUndoButton(); // Инициализируем кнопку Undo
         
         this.updateScore();
@@ -238,7 +237,7 @@ class PokerPuzzle {
     viewGameMode() {
         const boardElement = document.getElementsByTagName('body')[0];
         // Убираем все классы режимов
-        boardElement.classList.remove('simple', 'rapid', 'nightmare', 'wildfire', 'drift', 'default');
+        boardElement.classList.remove('simple', 'rapid', 'nightmare', 'wildfire', 'drift');
         boardElement.classList.add(this.mode);
     }
 
@@ -765,10 +764,6 @@ class PokerPuzzle {
                 // Сохраняем состояние перед выполнением хода
                 this.saveGameState();
 
-                // BEFORE MOVE EVENT
-                const beforeEvent = new CustomEvent(BEFORE_MOVE_EVENT, { detail: { state: this.getState() } });
-                document.dispatchEvent(beforeEvent);
-
                 this.showWinningCombo(comboResult.combo);
                 this.score += comboResult.combo.points;
 
@@ -953,14 +948,6 @@ class PokerPuzzle {
             return true; // Новый рекорд
         }
         return false; // Не новый рекорд
-    }
-
-    // Обновление отображения рекорда
-    updateHighScoreDisplay() {
-        const highScoreElement = document.getElementById('highScore');
-        if (highScoreElement) {
-            highScoreElement.textContent = this.highScore;
-        }
     }
 
     loadGameFromLocalStorage() {

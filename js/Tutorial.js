@@ -131,10 +131,6 @@ class Tutorial {
         this.tooltip.innerHTML = description;
         this.tooltip.style.visibility = 'visible';
 
-        // Оцениваем размер tooltip'а (примерно)
-        const estimatedWidth = 300;
-        const estimatedHeight = 80;
-
         // Очищаем предыдущую подсветку
         this.clearHighlight();
         this.positionTooltip(targetElement, this.tooltip);

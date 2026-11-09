@@ -23,10 +23,6 @@ class Combinations {
         [Combinations.PAIR]: { code: Combinations.PAIR, name: 'Pair', points: 10, check: Combinations.isPair.bind(Combinations) }
     };
 
-    static getCombo(code) {
-        return this.combos[code] || null;
-    }
-
     static checkPokerHand(cards) {
         // Проверяем комбинации в порядке убывания очков
         const comboOrder = [

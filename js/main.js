@@ -1,5 +1,4 @@
-// Глобальные константы для названий событий
-const BEFORE_MOVE_EVENT = 'beforeMoveEvent';
+// Глобальная константа для названия события
 const AFTER_MOVE_EVENT = 'afterMoveEvent';
 
 // Функции для управления popup'ами
@@ -13,7 +12,6 @@ function showNewGamePopup() {
     }
     // Сохраняем рекорд
     const isNewRecord = gameInstance.saveHighScore(gameInstance.score);
-    gameInstance.updateHighScoreDisplay();
 
     const modeName = gameInstance.mode[0].toUpperCase() + gameInstance.mode.slice(1);
 
@@ -43,11 +41,6 @@ function showNewGamePopup() {
 
 function showGamesPopup() {
     Popup.show('gamesPopup');
-}
-
-function confirmNewGame() {
-    Popup.close();
-    PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);
 }
 
 function showTutorialFromHelp() {
