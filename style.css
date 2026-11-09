@@ -109,7 +109,7 @@ body {
     font-weight: bold;
 }
 
-.new-game-btn, .help-btn {
+.new-game-btn, .help-btn, .games-btn {
     width: 100%;
     padding: 12px 8px;
     border: none;
@@ -123,6 +123,10 @@ body {
 
 .new-game-btn {
     background: #ef5350;
+}
+
+.games-btn {
+    background: #9c27b0;
 }
 
 .nightmare-btn {
@@ -704,6 +708,35 @@ body {
 
 .dropdown-menu .btn {
     margin: 0 0 4px 0;
+}
+
+.games-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.games-list .btn {
+    margin: 0;
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    text-align: left;
+}
+
+.games-list .game-name {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.games-list .game-desc {
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.9;
 }
 
 

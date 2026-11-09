@@ -41,6 +41,10 @@ function showNewGamePopup() {
     Popup.show('newGamePopup');
 }
 
+function showGamesPopup() {
+    Popup.show('gamesPopup');
+}
+
 function confirmNewGame() {
     Popup.close();
     PokerPuzzle.startNewGame(PokerPuzzle.DEFAULT_MODE);

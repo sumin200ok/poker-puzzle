@@ -13,6 +13,7 @@ class PokerPuzzle {
         this.selectedCards = [];
         this.score = 0;
         this.isSelecting = false;
+        this.isAnimating = false; // Флаг, блокирующий ввод во время анимации хода
         this.suits = ['♠', '♥', '♦', '♣'];
         this.ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
         this.rows = 9;
@@ -720,6 +721,8 @@ class PokerPuzzle {
     }
 
     startSelection(e) {
+        if (this.isAnimating) return;
+
         const target = e.target.closest('.card');
         if (!target || !this.board[target.dataset.index]) return;
 
@@ -730,7 +733,7 @@ class PokerPuzzle {
     }
 
     continueSelection(e) {
-        if (!this.isSelecting) return;
+        if (!this.isSelecting || this.isAnimating) return;
 
         const target = e.target.closest('.card');
         if (!target || !this.board[target.dataset.index]) return;
@@ -752,7 +755,7 @@ class PokerPuzzle {
     }
 
     async endSelection() {
-        if (!this.isSelecting) return;
+        if (!this.isSelecting || this.isAnimating) return;
 
         this.isSelecting = false;
 
@@ -777,29 +780,35 @@ class PokerPuzzle {
                 // Обновляем статистику
                 this.comboStats[comboResult.combo.name]++;
 
+                // Блокируем ввод на время анимации
+                this.isAnimating = true;
+
                     // Удаляем только выигрышные карты после завершения анимации
                     setTimeout(async () => {
-                        this.removeWinningCards(comboResult.winningCardIndices);
-                        this.selectedCards = [];
-                        this.updateSelection();
+                        try {
+                            this.removeWinningCards(comboResult.winningCardIndices);
+                            this.selectedCards = [];
+                            this.updateSelection();
 
-                        // Сжигаем случайную карту в режиме Wildfire (включает гравитацию)
-                        if (this.mode === PokerPuzzle.WILDFIRE_MODE) {
-                            await this.burnRandomCard();
+                            // Сжигаем случайную карту в режиме Wildfire (включает гравитацию)
+                            if (this.mode === PokerPuzzle.WILDFIRE_MODE) {
+                                await this.burnRandomCard();
+                            }
+
+                            // Применяем гравитацию или дрифт в зависимости от режима
+                            await this.animateGravity();
+
+                            // Перемешиваем оставшиеся карты только в режиме Nightmare
+                            if (this.mode === PokerPuzzle.NIGHTMARE_MODE) {
+                                await this.animateShuffle();
+                            }
+
+                            // AFTER MOVE EVENT
+                            const afterEvent = new CustomEvent(AFTER_MOVE_EVENT, { detail: { state: this.getState() } });
+                            document.dispatchEvent(afterEvent);
+                        } finally {
+                            this.isAnimating = false;
                         }
-
-                        // Применяем гравитацию или дрифт в зависимости от режима
-                        await this.animateGravity();
-
-                        // Перемешиваем оставшиеся карты только в режиме Nightmare
-                        if (this.mode === PokerPuzzle.NIGHTMARE_MODE) {
-                            await this.animateShuffle();
-                        }
-
-                        // AFTER MOVE EVENT
-                        const afterEvent = new CustomEvent(AFTER_MOVE_EVENT, { detail: { state: this.getState() } });
-                        document.dispatchEvent(afterEvent);
-
                 }, 1200);
 
                 this.updateScore();
@@ -898,6 +907,10 @@ class PokerPuzzle {
     }
 
     checkPokerHand() {
+        // Если какая-то из выбранных карт уже удалена (null), считаем выбор недействительным
+        if (this.selectedCards.some(index => !this.board[index])) {
+            return null;
+        }
         const cards = this.selectedCards.map(index => ({ card: this.board[index], index }));
         return Combinations.checkPokerHand(cards);
     }
